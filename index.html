@@ -174,6 +174,41 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* --- 新增：复制链接提示框样式 --- */
+        .copy-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none; /* 默认隐藏 */
+            text-align: center;
+            max-width: 90%;
+        }
+        .copy-prompt input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background: #333;
+            color: white;
+        }
+        .copy-prompt button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -208,6 +243,13 @@
         </div>
     </div>
 
+    <!-- 复制链接提示框 -->
+    <div id="copyPrompt" class="copy-prompt">
+        <p>未能自动跳转到 GitHub 登录页，请手动复制下方链接并在新标签页中打开。</p>
+        <input type="text" id="authUrlInput" readonly>
+        <button onclick="copyAuthUrl()">复制链接</button>
+    </div>
+
     <!-- Particles.js CDN -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
@@ -226,6 +268,8 @@
         const danmakuInput = document.getElementById('danmakuInput');
         const sendDanmakuBtn = document.getElementById('sendDanmakuBtn');
         const danmakuContainer = document.getElementById('danmakuContainer');
+        const copyPrompt = document.getElementById('copyPrompt');
+        const authUrlInput = document.getElementById('authUrlInput');
 
         let accessToken = null;
 
@@ -329,12 +373,36 @@
             danmakuInputArea.style.display = 'flex';
         }
 
-        // 5. 登录按钮事件
+        // 5. 修改后的 登录按钮事件
         loginBtn.addEventListener('click', () => {
+            // 尝试直接跳转
             window.location.href = AUTH_URL;
+            
+            // 启动一个计时器，如果页面没有跳转，则显示复制提示
+            setTimeout(() => {
+                // 检查页面是否仍在当前页 (通过检查 visibilityState 或其他方法并不完全可靠)
+                // 更简单的做法是假设如果执行到这里，跳转可能失败
+                if (confirm("如果页面没有自动跳转，请点击确认以获取登录链接。")) {
+                    showCopyPrompt();
+                }
+            }, 1000); // 延迟1秒检查，给予跳转足够时间
         });
 
-        // 6. 发送弹幕事件
+        // 6. 显示复制链接提示
+        function showCopyPrompt() {
+            authUrlInput.value = AUTH_URL;
+            copyPrompt.style.display = 'block';
+        }
+
+        // 7. 复制链接到剪贴板
+        function copyAuthUrl() {
+            authUrlInput.select();
+            document.execCommand('copy');
+            alert('授权链接已复制到剪贴板，请在新标签页中打开！');
+            copyPrompt.style.display = 'none'; // 隐藏提示框
+        }
+
+        // 8. 发送弹幕事件
         sendDanmakuBtn.addEventListener('click', sendDanmaku);
         danmakuInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -387,7 +455,7 @@
             }
         }
 
-        // 7. 创建并添加弹幕DOM元素
+        // 9. 创建并添加弹幕DOM元素
         function createAndAppendDanmaku(text) {
             const danmaku = document.createElement('div');
             danmaku.className = 'danmaku-item';
@@ -399,4 +467,47 @@
 
             // 随机动画持续时间 (10-20秒)，模拟不同速度
             const duration = 10 + Math.random() * 10;
-            d
+            danmaku.style.animationDuration = `${duration}s`;
+
+            danmakuContainer.appendChild(danmaku);
+
+            // 动画结束后移除元素以优化性能
+            setTimeout(() => {
+                if (danmaku.parentNode) {
+                    danmaku.parentNode.removeChild(danmaku);
+                }
+            }, duration * 1000);
+        }
+
+        // 10. 获取并显示历史弹幕
+        async function loadDanmakus() {
+            try {
+                // 从指定 Issue 获取评论列表
+                const issueNumber = 2;
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues/${issueNumber}/comments`);
+                
+                if (!response.ok) {
+                    throw new Error(`加载弹幕失败: ${response.statusText}`);
+                }
+
+                const comments = await response.json();
+                comments.forEach(comment => {
+                    // 过滤掉可能的系统消息或特定格式
+                    if (comment.body && comment.body.trim().length > 0 && !comment.body.startsWith('***')) {
+                        createAndAppendDanmaku(comment.body);
+                    }
+                });
+            } catch (error) {
+                console.error('加载历史弹幕时出错:', error);
+            }
+        }
+
+        // 11. 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            checkForAuthCode(); // 检查登录状态
+            loadDanmakus();     // 加载历史弹幕
+        });
+
+    </script>
+</body>
+</html>
