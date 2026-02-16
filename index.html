@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐎 赵宇的马年祝福</title>
+    <title>🐎赵宇的马年祝福</title>
     <style>
         :root { --primary-red: #d93025; --gold: #f9c74f; --bg-color: #fff5f5; --text-color: #333; }
         body { font-family: 'Microsoft YaHei', sans-serif; background-color: var(--bg-color); background-image: radial-gradient(#ffe0e0 2px, transparent 2px); background-size: 30px 30px; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--text-color); }
@@ -20,9 +20,11 @@
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(217, 48, 37, 0.4); background-color: #c52b1f; }
         .btn-outline { background-color: transparent; border: 2px solid var(--primary-red); color: var(--primary-red); }
         .btn-outline:hover { background-color: var(--primary-red); color: white; }
-        .user-info { display: none; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .user-info { display: none !important; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .user-info.show { display: flex !important; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold); }
-        .input-area { display: none; margin-top: 20px; animation: fadeIn 0.5s ease; }
+        .input-area { display: none !important; margin-top: 20px; animation: fadeIn 0.5s ease; }
+        .input-area.show { display: block !important; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .input-group { display: flex; gap: 10px; margin-top: 10px; }
         input[type="text"] { flex: 1; padding: 12px 20px; border: 2px solid #ddd; border-radius: 50px; font-size: 16px; outline: none; transition: border-color 0.3s; }
@@ -31,7 +33,11 @@
         .danmu-track { position: absolute; white-space: nowrap; font-size: 18px; font-weight: bold; will-change: transform; text-shadow: 1px 1px 2px black; }
         .loading { color: #aaa; margin-top: 20px; }
         .error-msg { color: var(--primary-red); margin-top: 10px; font-size: 0.9em; display: none; background: #fff0f0; padding: 10px; border-radius: 5px; border: 1px solid #ffcccc; }
-        .debug-info { font-size: 0.8em; color: #999; margin-top: 5px; word-break: break-all; }
+        .debug-panel { font-size: 0.75em; color: #666; margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; text-align: left; max-height: 150px; overflow-y: auto; }
+        .debug-panel p { margin: 3px 0; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
         footer { margin-top: 30px; font-size: 0.9em; color: #666; }
     </style>
 </head>
@@ -74,8 +80,12 @@
             </div>
             
             <div id="error-msg" class="error-msg"></div>
-            <!-- 调试信息：仅用于排查问题，生产环境可删除 -->
-            <div id="debug-info" class="debug-info"></div>
+            
+            <!-- 调试面板 -->
+            <div class="debug-panel" id="debug-panel">
+                <p>🔍 调试信息：</p>
+                <div id="debug-logs"></div>
+            </div>
         </div>
 
         <!-- 弹幕输入框 (登录后显示) -->
@@ -104,61 +114,88 @@
         // ================= 配置区域 (必须修改这里) =================
         const GITHUB_CONFIG = {
             clientId: 'Ov23liuXYxHOmaUSKNUx', 
-            owner: 'kudou1994',     // ⚠️ 请替换为您的 GitHub 用户名 (区分大小写)
-            repo: 'kudou.github.io'             // ⚠️ 请替换为您的仓库名 (区分大小写)
+            owner: 'kudou1994',     // ⚠️ 替换为您的 GitHub 用户名
+            repo: 'kudou.github.io'             // ⚠️ 替换为您的仓库名
         };
         // =======================================================
 
-        // DOM 元素
-        const loginView = document.getElementById('login-view');
-        const userView = document.getElementById('user-view');
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const userAvatar = document.getElementById('user-avatar');
-        const userName = document.getElementById('user-name');
-        const inputArea = document.getElementById('input-area');
-        const danmuInput = document.getElementById('danmu-input');
-        const sendBtn = document.getElementById('send-btn');
-        const danmuScreen = document.getElementById('danmu-screen');
-        const loadingText = document.getElementById('loading-text');
-        const errorMsg = document.getElementById('error-msg');
-        const debugInfo = document.getElementById('debug-info');
+        // DOM 元素缓存
+        const elements = {};
+        
+        function cacheElements() {
+            elements.loginView = document.getElementById('login-view');
+            elements.userView = document.getElementById('user-view');
+            elements.loginBtn = document.getElementById('login-btn');
+            elements.logoutBtn = document.getElementById('logout-btn');
+            elements.userAvatar = document.getElementById('user-avatar');
+            elements.userName = document.getElementById('user-name');
+            elements.inputArea = document.getElementById('input-area');
+            elements.danmuInput = document.getElementById('danmu-input');
+            elements.sendBtn = document.getElementById('send-btn');
+            elements.danmuScreen = document.getElementById('danmu-screen');
+            elements.loadingText = document.getElementById('loading-text');
+            elements.errorMsg = document.getElementById('error-msg');
+            elements.debugLogs = document.getElementById('debug-logs');
+            
+            // 验证元素是否存在
+            const missing = [];
+            for (const [key, el] of Object.entries(elements)) {
+                if (!el) missing.push(key);
+            }
+            if (missing.length > 0) {
+                logDebug(`⚠️ 警告: 以下 DOM 元素未找到: ${missing.join(', ')}`, 'warning');
+            }
+        }
 
         let accessToken = null;
         let userInfo = null;
 
-        // 工具：显示调试信息
-        function logDebug(msg) {
-            console.log(msg);
-            debugInfo.textContent = msg;
+        // 调试日志
+        function logDebug(msg, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEl = document.createElement('p');
+            logEl.className = type;
+            logEl.textContent = `[${timestamp}] ${msg}`;
+            elements.debugLogs?.prepend(logEl);
+            console.log(`[Danmu] ${msg}`);
         }
 
         // 初始化
         window.addEventListener('DOMContentLoaded', () => {
-            logDebug("页面加载开始...");
-            handleAuthCallback();
+            logDebug('=== 页面加载开始 ===');
+            cacheElements();
             
-            // 如果有 Token，先尝试获取用户信息再渲染 UI
-            if (accessToken) {
-                checkLoginStatus();
+            // 第一步：处理 OAuth 回调（提取 Token）
+            const tokenFromCallback = handleAuthCallback();
+            
+            // 第二步：如果有 Token，验证并更新 UI
+            if (tokenFromCallback || localStorage.getItem('github_token')) {
+                logDebug('检测到 Token，开始验证...', 'info');
+                validateAndShowUI();
             } else {
+                logDebug('未检测到 Token，显示登录界面', 'info');
                 showLoggedOut();
-                logDebug("未检测到 Token，显示登录按钮");
             }
             
+            // 第三步：加载弹幕
             loadDanmus();
+            
+            logDebug('=== 页面初始化完成 ===');
         });
 
-        // 1. 处理 OAuth 回调 (隐式授权)
+        // 1. 处理 OAuth 回调
         function handleAuthCallback() {
             const hash = window.location.hash.substring(1);
-            logDebug(`URL Hash: ${hash}`);
+            logDebug(`URL Hash: ${hash || '(空)'}`);
             
             if (!hash) {
-                // 没有 Hash，尝试从 localStorage 读取
-                accessToken = localStorage.getItem('github_token');
-                if(accessToken) logDebug("从 LocalStorage 恢复 Token");
-                return;
+                const stored = localStorage.getItem('github_token');
+                if (stored) {
+                    accessToken = stored;
+                    logDebug('从 LocalStorage 恢复 Token', 'success');
+                    return true;
+                }
+                return false;
             }
 
             const params = new URLSearchParams(hash);
@@ -166,36 +203,34 @@
             const error = params.get('error');
 
             if (error) {
+                logDebug(`授权错误: ${error}`, 'error');
                 showError(`授权失败: ${params.get('error_description') || error}`);
-                logDebug(`授权错误: ${error}`);
                 window.history.replaceState({}, document.title, window.location.pathname);
-                return;
+                return false;
             }
 
             if (token) {
                 accessToken = token;
                 localStorage.setItem('github_token', token);
-                logDebug("✅ Token 获取成功，已保存");
-                // 清理 URL，防止刷新重复提交
+                logDebug('✅ Token 获取成功并已保存', 'success');
+                logDebug(`Token 前缀: ${token.substring(0, 10)}...`);
                 window.history.replaceState({}, document.title, window.location.pathname);
-                
-                // 关键：拿到 Token 后立即验证并更新 UI，不要等页面刷新
-                checkLoginStatus(); 
-            } else {
-                logDebug("Hash 中未找到 access_token");
-                accessToken = localStorage.getItem('github_token');
+                return true;
             }
+            
+            return false;
         }
 
-        // 2. 检查登录状态并更新 UI
-        async function checkLoginStatus() {
+        // 2. 验证 Token 并更新 UI（关键修复）
+        async function validateAndShowUI() {
             if (!accessToken) {
+                logDebug('❌ 没有可用的 Token', 'error');
                 showLoggedOut();
                 return;
             }
 
             try {
-                logDebug("正在验证 Token 并获取用户信息...");
+                logDebug('正在调用 GitHub API 验证 Token...');
                 const response = await fetch('https://api.github.com/user', {
                     headers: {
                         'Authorization': `token ${accessToken}`,
@@ -203,226 +238,250 @@
                     }
                 });
 
+                logDebug(`GitHub API 响应状态: ${response.status}`);
+
                 if (response.ok) {
                     userInfo = await response.json();
-                    logDebug(`登录成功: ${userInfo.login}`);
-                    showLoggedIn(userInfo);
+                    logDebug(`✅ 用户验证成功: ${userInfo.login}`, 'success');
+                    logDebug(`用户 ID: ${userInfo.id}`);
+                    
+                    // 关键：确保 UI 更新在数据获取后执行
+                    updateUIState(true);
                 } else {
                     const err = await response.json();
-                    logDebug(`Token 无效: ${err.message}`);
+                    logDebug(`❌ Token 验证失败: ${err.message}`, 'error');
                     localStorage.removeItem('github_token');
                     accessToken = null;
                     showLoggedOut();
-                    showError("登录会话已过期，请重新登录");
+                    showError('登录会话已过期，请重新登录');
                 }
             } catch (err) {
-                console.error('Check login failed:', err);
-                logDebug(`网络错误: ${err.message}`);
+                logDebug(`❌ 网络错误: ${err.message}`, 'error');
                 showLoggedOut();
             }
         }
 
-        function showLoggedIn(user) {
-            loginView.style.display = 'none';
-            userView.style.display = 'flex';
-            inputArea.style.display = 'block';
-            errorMsg.style.display = 'none';
+        // 3. UI 状态更新（使用 !important 的 class）
+        function updateUIState(isLoggedIn) {
+            logDebug(`更新 UI 状态：${isLoggedIn ? '已登录' : '未登录'}`);
             
-            userAvatar.src = user.avatar_url;
-            userName.textContent = user.login;
-            logDebug("UI 已更新为登录状态");
+            if (isLoggedIn) {
+                // 隐藏登录视图
+                if (elements.loginView) {
+                    elements.loginView.style.display = 'none';
+                    logDebug('✓ 隐藏登录视图');
+                }
+                
+                // 显示用户信息
+                if (elements.userView) {
+                    elements.userView.classList.add('show');
+                    elements.userView.style.display = 'flex';
+                    logDebug('✓ 显示用户信息');
+                }
+                
+                // 显示输入区域
+                if (elements.inputArea) {
+                    elements.inputArea.classList.add('show');
+                    elements.inputArea.style.display = 'block';
+                    logDebug('✓ 显示弹幕输入框');
+                }
+                
+                // 设置用户信息
+                if (elements.userAvatar && userInfo) {
+                    elements.userAvatar.src = userInfo.avatar_url;
+                    logDebug(`✓ 设置头像: ${userInfo.avatar_url}`);
+                }
+                if (elements.userName && userInfo) {
+                    elements.userName.textContent = userInfo.login;
+                    logDebug(`✓ 设置用户名: ${userInfo.login}`);
+                }
+                
+                elements.errorMsg.style.display = 'none';
+            } else {
+                showLoggedOut();
+            }
         }
 
         function showLoggedOut() {
-            loginView.style.display = 'block';
-            userView.style.display = 'none';
-            inputArea.style.display = 'none';
+            logDebug('显示未登录状态');
+            if (elements.loginView) elements.loginView.style.display = 'block';
+            if (elements.userView) {
+                elements.userView.classList.remove('show');
+                elements.userView.style.display = 'none';
+            }
+            if (elements.inputArea) {
+                elements.inputArea.classList.remove('show');
+                elements.inputArea.style.display = 'none';
+            }
         }
 
-        // 3. 登录/退出事件
-        loginBtn.addEventListener('click', () => {
-            const redirectUri = window.location.href.split('#')[0];
-            const scope = 'public_repo';
-            
-            // 检查配置是否被修改
-            if (GITHUB_CONFIG.owner === 'YOUR_GITHUB_USERNAME') {
-                alert("⚠️ 错误：请在代码中修改 GITHUB_CONFIG 的 owner 和 repo 字段！");
-                return;
-            }
-
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=token`;
-            logDebug(`跳转至: ${authUrl}`);
-            window.location.href = authUrl;
-        });
-
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('github_token');
-            accessToken = null;
-            userInfo = null;
-            location.reload();
-        });
-
-        // 4. 发送弹幕 (创建 Issue)
-        sendBtn.addEventListener('click', async () => {
-            const content = danmuInput.value.trim();
-            if (!content) return alert('请输入祝福语！');
-            if (!accessToken) return alert('请先登录！');
-
-            // 再次检查配置
-            if (GITHUB_CONFIG.owner === 'YOUR_GITHUB_USERNAME' || GITHUB_CONFIG.repo === 'YOUR_REPO_NAME') {
-                showError("⚠️ 配置错误：请在代码中填写正确的 GitHub 用户名和仓库名！");
-                return;
-            }
-
-            sendBtn.disabled = true;
-            sendBtn.textContent = '发送中...';
-            errorMsg.style.display = 'none';
-
-            try {
-                const title = `🐎 马年祝福: ${userInfo.login}`;
-                const body = `**发送者**: ${userInfo.login}\n**时间**: ${new Date().toLocaleString('zh-CN')}\n\n> ${content}`;
-
-                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues`;
-                logDebug(`发送请求至: ${url}`);
-
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `token ${accessToken}`,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        title: title,
-                        body: body,
-                        labels: ['danmu', 'horse-year-2026']
-                    })
-                });
-
-                if (response.ok) {
-                    alert('🎉 祝福发送成功！');
-                    danmuInput.value = '';
-                    loadDanmus(); 
-                } else {
-                    const errData = await response.json();
-                    logDebug(`发送失败响应: ${JSON.stringify(errData)}`);
-                    throw new Error(errData.message || '发送失败');
+        // 4. 登录按钮事件
+        if (elements.loginBtn) {
+            elements.loginBtn.addEventListener('click', () => {
+                // 检查配置
+                if (GITHUB_CONFIG.owner === 'YOUR_GITHUB_USERNAME' || GITHUB_CONFIG.repo === 'YOUR_REPO_NAME') {
+                    showError('⚠️ 请先在代码中修改 GITHUB_CONFIG 的 owner 和 repo！');
+                    logDebug('配置未修改，阻止登录', 'warning');
+                    return;
                 }
-            } catch (err) {
-                showError('发送失败: ' + err.message + (err.message.includes('Not Found') ? ' (请检查仓库名是否正确且 Issues 功能已开启)' : ''));
-            } finally {
-                sendBtn.disabled = false;
-                sendBtn.textContent = '发送 🚀';
-            }
-        });
 
-        // 5. 加载弹幕 (读取 Issues)
+                const redirectUri = window.location.href.split('#')[0];
+                const scope = 'public_repo';
+                const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=token`;
+                
+                logDebug(`跳转至 GitHub 授权: ${authUrl.substring(0, 100)}...`);
+                window.location.href = authUrl;
+            });
+        }
+
+        // 5. 退出按钮事件
+        if (elements.logoutBtn) {
+            elements.logoutBtn.addEventListener('click', () => {
+                logDebug('用户点击退出');
+                localStorage.removeItem('github_token');
+                accessToken = null;
+                userInfo = null;
+                location.reload();
+            });
+        }
+
+        // 6. 发送弹幕
+        if (elements.sendBtn) {
+            elements.sendBtn.addEventListener('click', async () => {
+                const content = elements.danmuInput?.value.trim();
+                if (!content) return alert('请输入祝福语！');
+                if (!accessToken) return alert('请先登录！');
+
+                if (GITHUB_CONFIG.owner === 'YOUR_GITHUB_USERNAME' || GITHUB_CONFIG.repo === 'YOUR_REPO_NAME') {
+                    showError('⚠️ 配置错误：请填写正确的用户名和仓库名！');
+                    return;
+                }
+
+                elements.sendBtn.disabled = true;
+                elements.sendBtn.textContent = '发送中...';
+                elements.errorMsg.style.display = 'none';
+
+                try {
+                    const title = `🐎 马年祝福: ${userInfo.login}`;
+                    const body = `**发送者**: ${userInfo.login}\n**时间**: ${new Date().toLocaleString('zh-CN')}\n\n> ${content}`;
+                    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues`;
+                    
+                    logDebug(`发送弹幕至: ${url}`);
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${accessToken}`,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: title,
+                            body: body,
+                            labels: ['danmu', 'horse-year-2026']
+                        })
+                    });
+
+                    if (response.ok) {
+                        logDebug('✅ 弹幕发送成功', 'success');
+                        alert('🎉 祝福发送成功！');
+                        elements.danmuInput.value = '';
+                        loadDanmus();
+                    } else {
+                        const errData = await response.json();
+                        logDebug(`发送失败: ${JSON.stringify(errData)}`, 'error');
+                        throw new Error(errData.message || '发送失败');
+                    }
+                } catch (err) {
+                    logDebug(`发送异常: ${err.message}`, 'error');
+                    showError('发送失败: ' + err.message);
+                } finally {
+                    elements.sendBtn.disabled = false;
+                    elements.sendBtn.textContent = '发送 🚀';
+                }
+            });
+        }
+
+        // 7. 加载弹幕
         async function loadDanmus() {
-            loadingText.style.display = 'block';
-            danmuScreen.innerHTML = ''; 
-            danmuScreen.appendChild(loadingText);
+            if (!elements.loadingText) return;
+            elements.loadingText.style.display = 'block';
+            elements.danmuScreen.innerHTML = '';
+            elements.danmuScreen.appendChild(elements.loadingText);
 
-            // 检查配置
             if (GITHUB_CONFIG.owner === 'YOUR_GITHUB_USERNAME' || GITHUB_CONFIG.repo === 'YOUR_REPO_NAME') {
-                loadingText.textContent = "⚠️ 请在代码中配置 GITHUB_CONFIG 的 owner 和 repo！";
-                loadingText.style.color = "red";
-                showError("配置未完成：无法加载弹幕，请填写代码中的用户名和仓库名。");
+                elements.loadingText.textContent = '⚠️ 请配置 GITHUB_CONFIG';
+                elements.loadingText.style.color = 'red';
                 return;
             }
 
             try {
                 const headers = { 'Accept': 'application/json' };
-                if (accessToken) {
-                    headers['Authorization'] = `token ${accessToken}`;
-                }
+                if (accessToken) headers['Authorization'] = `token ${accessToken}`;
 
                 const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?labels=danmu&state=open&per_page=20`;
-                logDebug(`加载弹幕 URL: ${url}`);
+                logDebug(`加载弹幕: ${url}`);
 
                 const response = await fetch(url, { headers });
+                logDebug(`弹幕 API 响应: ${response.status}`);
 
                 if (response.ok) {
                     const issues = await response.json();
-                    logDebug(`成功加载 ${issues.length} 条弹幕`);
+                    logDebug(`加载 ${issues.length} 条弹幕`, 'success');
                     renderDanmus(issues);
                 } else {
                     const err = await response.json();
-                    logDebug(`加载失败响应: ${JSON.stringify(err)}`);
+                    logDebug(`加载失败: ${err.message}`, 'error');
                     let msg = '无法加载弹幕';
-                    if (response.status === 404) msg = '找不到仓库 (404)。请检查用户名和仓库名是否正确，且仓库是公开的。';
-                    if (response.status === 403) msg = '访问被拒绝 (403)。请检查仓库是否存在。';
+                    if (response.status === 404) msg = '找不到仓库 (404) - 检查用户名/仓库名';
+                    if (response.status === 403) msg = '访问被拒绝 (403)';
                     throw new Error(msg);
                 }
             } catch (err) {
-                loadingText.textContent = '加载失败: ' + err.message;
-                loadingText.style.color = "#ff6b6b";
-                showError(err.message);
-                console.error(err);
+                elements.loadingText.textContent = '加载失败: ' + err.message;
+                elements.loadingText.style.color = '#ff6b6b';
+                logDebug(`加载异常: ${err.message}`, 'error');
             }
         }
 
         function renderDanmus(issues) {
-            danmuScreen.innerHTML = ''; 
+            elements.danmuScreen.innerHTML = '';
             
             if (issues.length === 0) {
                 const emptyMsg = document.createElement('div');
-                emptyMsg.style.position = 'absolute';
-                emptyMsg.style.top = '50%';
-                emptyMsg.style.left = '50%';
-                emptyMsg.style.transform = 'translate(-50%, -50%)';
-                emptyMsg.style.color = '#aaa';
+                emptyMsg.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#aaa;';
                 emptyMsg.textContent = '暂无弹幕，快来发第一条吧！';
-                danmuScreen.appendChild(emptyMsg);
+                elements.danmuScreen.appendChild(emptyMsg);
                 return;
             }
 
-            // 确保有样式
             if (!document.getElementById('danmu-style')) {
                 const style = document.createElement('style');
                 style.id = 'danmu-style';
-                style.textContent = `
-                    @keyframes moveLeft {
-                        from { transform: translateX(${danmuScreen.offsetWidth}px); }
-                        to { transform: translateX(-100%); }
-                    }
-                `;
+                style.textContent = `@keyframes moveLeft { from { transform: translateX(${elements.danmuScreen.offsetWidth}px); } to { transform: translateX(-100%); } }`;
                 document.head.appendChild(style);
             }
 
-            issues.forEach((issue, index) => {
+            issues.forEach((issue) => {
                 let content = issue.body;
                 const match = content.match(/> (.*)/);
-                if (match) content = match[1];
-                else content = issue.title.replace('🐎 马年祝福: ', '');
+                content = match ? match[1] : issue.title.replace('🐎 马年祝福: ', '');
 
                 const track = document.createElement('div');
                 track.className = 'danmu-track';
                 track.textContent = `${issue.user.login}: ${content}`;
-                
-                const topPos = Math.random() * 80 + 10; 
-                const duration = Math.random() * 10 + 10; 
-                const delay = Math.random() * 5; 
-
-                track.style.top = `${topPos}%`;
-                track.style.animation = `moveLeft ${duration}s linear ${delay}s infinite`;
-                danmuScreen.appendChild(track);
+                track.style.top = `${Math.random() * 80 + 10}%`;
+                track.style.animation = `moveLeft ${Math.random() * 10 + 10}s linear ${Math.random() * 5}s infinite`;
+                elements.danmuScreen.appendChild(track);
             });
-            
-            // 重新应用宽度以适配当前屏幕
-            const style = document.getElementById('danmu-style');
-            if(style) {
-                style.textContent = `
-                    @keyframes moveLeft {
-                        from { transform: translateX(${danmuScreen.offsetWidth}px); }
-                        to { transform: translateX(-100%); }
-                    }
-                `;
-            }
         }
 
         function showError(msg) {
-            errorMsg.textContent = msg;
-            errorMsg.style.display = 'block';
+            if (elements.errorMsg) {
+                elements.errorMsg.textContent = msg;
+                elements.errorMsg.style.display = 'block';
+                logDebug(`错误: ${msg}`, 'error');
+            }
         }
     </script>
 </body>
