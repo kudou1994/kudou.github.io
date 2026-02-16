@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐎 马年大吉 🐎</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #c41e3a 0%, #8b0000 50%, #c41e3a 100%);
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 烟花背景 */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: explode 1.5s ease-out infinite;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                box-shadow: 
+                    0 0 20px #ffd700,
+                    0 0 40px #ffd700,
+                    0 0 60px #ffd700;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* 马年图标 */
+        .horse-icon {
+            font-size: 80px;
+            animation: bounce 2s ease-in-out infinite;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+        }
+
+        /* 标题 */
+        .title {
+            font-size: 2.5rem;
+            color: #ffd700;
+            text-shadow: 
+                0 0 10px rgba(255, 215, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.6),
+                0 0 30px rgba(255, 215, 0, 0.4);
+            margin-bottom: 15px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
+            to { text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 215, 0, 0.8); }
+        }
+
+        /* 祝福卡片 */
+        .card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,240,200,0.9));
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 20px 0;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 
+                0 10px 40px rgba(0,0,0,0.3),
+                0 0 60px rgba(255, 215, 0, 0.4);
+            animation: cardFloat 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 215, 0, 0.3) 50%,
+                transparent 70%
+            );
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .blessing {
+            font-size: 1.3rem;
+            color: #8b0000;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .year {
+            font-size: 3rem;
+            color: #c41e3a;
+            font-weight: bold;
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* 装饰元素 */
+        .decoration {
+            font-size: 2rem;
+            margin: 10px 5px;
+            animation: spin 4s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 按钮 */
+        .btn {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            color: #8b0000;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 飘落元素 */
+        .falling {
+            position: fixed;
+            top: -50px;
+            font-size: 24px;
+            animation: fall linear infinite;
+            z-index: 5;
+            opacity: 0.8;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+
+        /* 底部信息 */
+        .footer {
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* 音乐控制 */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 加载动画 */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #c41e3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-horse {
+            font-size: 60px;
+            animation: run 1s ease-in-out infinite;
+        }
+
+        @keyframes run {
+            0%, 100% { transform: translateX(-20px); }
+            50% { transform: translateX(20px); }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 375px) {
+            .title { font-size: 2rem; }
+            .horse-icon { font-size: 60px; }
+            .year { font-size: 2.5rem; }
+            .blessing { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载页面 -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="loader-horse">🐎</div>
+            <p style="color: #ffd700; margin-top: 20px; font-size: 1.2rem;">正在加载祝福...</p>
+        </div>
+    </div>
+
+    <!-- 音乐控制 -->
+    <div class="music-control" id="musicBtn" onclick="toggleMusic()">
+        🎵
+    </div>
+
+    <!-- 烟花背景 -->
+    <div class="fireworks" id="fireworks"></div>
+
+    <!-- 主内容 -->
+    <div class="container">
+        <div class="horse-icon">🐎</div>
+        
+        <h1 class="title">马年大吉</h1>
+        
+        <div class="card">
+            <div class="card-content">
+                <div class="year">2026</div>
+                <div style="margin: 15px 0;">
+                    <span class="decoration">🧧</span>
+                    <span class="decoration">🏮</span>
+                    <span class="decoration">🎊</span>
+                </div>
+                <p class="blessing">
+                    🐎 马年驾到，AI加持！<br>
+                    赵宇在这里祝您：<br>
+                    AI分琐碎，闲时伴家人。<br>
+                    智技催梦想，创意任驰骋。<br>
+                    人机共协作，智慧照乾坤！
+                </p>
+                <div style="margin: 15px 0;">
+                    <span class="decoration">🎉</span>
+                    <span class="decoration">🌟</span>
+                    <span class="decoration">💫</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="sendBlessing()">
+            🎁 发送祝福
+        </button>
+
+        <div class="footer">
+            <p>祝您马年行大运 · 万事皆如意</p>
+            <p style="margin-top: 10px;">✨ 2026 农历马年 ✨</p>
+        </div>
+    </div>
+
+    <script>
+        // 隐藏加载页面
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1500);
+            
+            // 初始化效果
+            initFireworks();
+            initFallingElements();
+        });
+
+        // 创建烟花
+        function initFireworks() {
+            const container = document.getElementById('fireworks');
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'];
+            
+            setInterval(() => {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = Math.random() * 100 + '%';
+                firework.style.top = Math.random() * 100 + '%';
+                firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.animationDelay = Math.random() * 0.5 + 's';
+                
+                container.appendChild(firework);
+                
+                setTimeout(() => {
+                    firework.remove();
+                }, 1500);
+            }, 300);
+        }
+
+        // 创建飘落元素
+        function initFallingElements() {
+            const elements = ['🐎', '🧧', '🏮', '⭐', '🎊', '💰', '🍊'];
+            
+            setInterval(() => {
+                const falling = document.createElement('div');
+                falling.className = 'falling';
+                falling.textContent = elements[Math.floor(Math.random() * elements.length)];
+                falling.style.left = Math.random() * 100 + '%';
+                falling.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                
+                document.body.appendChild(falling);
+                
+                setTimeout(() => {
+                    falling.remove();
+                }, 5000);
+            }, 800);
+        }
+
+        // 音乐控制
+        let musicPlaying = false;
+        function toggleMusic() {
+            musicPlaying = !musicPlaying;
+            document.getElementById('musicBtn').textContent = musicPlaying ? '🔊' : '🎵';
+            
+            // 这里可以添加实际的音乐播放逻辑
+            if (musicPlaying) {
+                // 播放新年音乐
+                console.log('播放新年音乐');
+            }
+        }
+
+        // 发送祝福
+        function sendBlessing() {
+            // 创建分享效果
+            const btn = event.target;
+            btn.textContent = '✅ 已发送';
+            btn.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
+            
+            // 创建庆祝效果
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.cssText = `
+                        position: fixed;
+                        width: 10px;
+                        height: 10px;
+                        background: ${['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1'][Math.floor(Math.random() * 4)]};
+                        left: ${Math.random() * 100}%;
+                        top: -10px;
+                        z-index: 999;
+                        animation: fall ${Math.random() * 2 + 1}s linear;
+                    `;
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+            
+            // 恢复按钮
+            setTimeout(() => {
+                btn.textContent = '🎁 发送祝福';
+                btn.style.background = 'linear-gradient(45deg, #ffd700, #ff8c00)';
+            }, 2000);
+            
+            // 实际分享功能（可以根据需要修改）
+            if (navigator.share) {
+                navigator.share({
+                    title: '马年祝福',
+                    text: '🐎 马年大吉！祝您2026年马到成功，万事如意！',
+                    url: window.location.href
+                }).catch(console.error);
+            }
+        }
+
+        // 触摸反馈
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.classList.contains('btn')) {
+                e.target.style.transform = 'scale(0.95)';
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', function(e) {
+            if (e.target.classList.contains('btn')) {
+                e.target.style.transform = 'scale(1)';
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>
+
+
