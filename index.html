@@ -3,403 +3,538 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>赵宇的马年祝福</title>
-    <!-- 弹幕库 -->
-    <script src="https://cdn.jsdelivr.net/npm/danmaku-js@1.0.6/dist/danmaku.min.js"></script>
+    <title>🐎 2026 马年祝福弹幕墙</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            font-family: 'Microsoft YaHei', sans-serif;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+        :root {
+            --primary-red: #d93025;
+            --gold: #f9c74f;
+            --bg-color: #fff5f5;
+            --text-color: #333;
         }
 
-        /* 弹幕层 */
-        #danmaku-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-            overflow: hidden;
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#ffe0e0 2px, transparent 2px);
+            background-size: 30px 30px;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
         }
 
         .container {
-            text-align: center;
+            max-width: 800px;
+            width: 100%;
             background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            max-width: 600px;
-            width: 90%;
+            box-shadow: 0 10px 30px rgba(217, 48, 37, 0.2);
+            padding: 30px;
+            text-align: center;
+            border: 2px solid var(--primary-red);
             position: relative;
-            z-index: 10;
+            overflow: hidden;
         }
 
-        h1 { color: #d63031; font-size: 2.5em; margin-bottom: 10px; }
-        .year { font-size: 1.5em; color: #e17055; font-weight: bold; }
-        .blessing {
-            font-size: 1.2em; line-height: 1.8; color: #2d3436;
-            margin: 20px 0; white-space: pre-line;
+        /* 装饰元素 */
+        .lantern {
+            position: absolute;
+            top: -20px;
+            font-size: 40px;
+            animation: swing 3s infinite ease-in-out;
+        }
+        .lantern.left { left: 20px; animation-delay: 0s; }
+        .lantern.right { right: 20px; animation-delay: 1.5s; }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        h1 {
+            color: var(--primary-red);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px var(--gold);
+        }
+
+        .blessing-card {
+            background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+            border: 2px dashed var(--primary-red);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .blessing-text {
+            font-size: 1.2em;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        .highlight {
+            color: var(--primary-red);
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        /* 登录区域 */
+        .auth-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #eee;
         }
 
         .btn {
-            background: #d63031; color: white; border: none;
-            padding: 12px 30px; font-size: 1.1em; border-radius: 50px;
-            cursor: pointer; transition: transform 0.2s; margin-top: 20px;
-        }
-        .btn:hover { background: #c0392b; transform: scale(1.05); }
-
-        /* 登录区域样式 */
-        .auth-section {
-            margin-top: 25px;
-            padding: 15px;
-            background: #f1f2f6;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .github-login-btn {
-            background: #24292e;
+            background-color: var(--primary-red);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 50px;
             cursor: pointer;
-            display: flex;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(217, 48, 37, 0.3);
+            font-weight: bold;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
-            text-decoration: none;
         }
-        .github-login-btn:hover { background: #444; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(217, 48, 37, 0.4);
+            background-color: #c52b1f;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary-red);
+            color: var(--primary-red);
+        }
+        .btn-outline:hover {
+            background-color: var(--primary-red);
+            color: white;
+        }
 
         .user-info {
             display: none; /* 默认隐藏 */
             align-items: center;
-            gap: 10px;
-            width: 100%;
-        }
-        .user-info img {
-            width: 35px; height: 35px; border-radius: 50%;
-            border: 2px solid #0984e3;
-        }
-        .user-name { font-weight: bold; color: #2d3436; }
-        .logout-btn {
-            font-size: 12px; color: #d63031; cursor: pointer;
-            background: none; border: none; text-decoration: underline;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        /* 输入区域 */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+        }
+
+        /* 弹幕输入区 */
         .input-area {
-            margin-top: 15px;
-            display: none; /* 登录后显示 */
+            display: none; /* 默认隐藏 */
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-group {
+            display: flex;
             gap: 10px;
-            width: 100%;
+            margin-top: 10px;
         }
-        #danmaku-input {
-            flex: 1; padding: 10px; border: 2px solid #fab1a0;
-            border-radius: 20px; outline: none;
-        }
-        #send-btn {
-            background: #0984e3; color: white; border: none;
-            padding: 10px 20px; border-radius: 20px; cursor: pointer;
-        }
-        #send-btn:disabled { background: #b2bec3; cursor: not-allowed; }
 
-        .status {
-            margin-top: 10px; font-size: 12px; height: 20px;
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
         }
-        .status.error { color: #d63031; }
-        .status.success { color: #00b894; }
-        .status.loading { color: #0984e3; }
 
-        .footer { margin-top: 20px; font-size: 0.9em; color: #636e72; }
+        input[type="text"]:focus {
+            border-color: var(--primary-red);
+        }
+
+        /* 弹幕展示区 */
+        .danmu-container {
+            margin-top: 30px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            color: white;
+            border: 4px solid var(--gold);
+        }
+
+        .danmu-track {
+            position: absolute;
+            white-space: nowrap;
+            font-size: 18px;
+            font-weight: bold;
+            will-change: transform;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .loading {
+            color: #aaa;
+            margin-top: 20px;
+        }
+
+        .error-msg {
+            color: var(--primary-red);
+            margin-top: 10px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+        }
     </style>
 </head>
 <body>
 
-    <div id="danmaku-container"></div>
-
     <div class="container">
-        <h1>🐎 马年大吉 🐎</h1>
-        <div class="year">2026 🧧 🏮 🎊</div>
+        <div class="lantern left">🏮</div>
+        <div class="lantern right">🏮</div>
+
+        <h1>🐎 2026 马年大吉 🐎</h1>
         
-        <div class="blessing">
-<strong>🐎 马年驾到，AI 加持！</strong>
-赵宇在这里祝您：
-AI 分琐碎，闲时伴家人。
-智能启梦想，创意任驰飞。
-人机共协作，智引向乾坤！
+        <div class="blessing-card">
+            <div class="blessing-text">
+                <span class="highlight">赵宇的马年祝福</span><br><br>
+                🐎 马年驾到，AI 加持！<br>
+                赵宇在这里祝您：<br>
+                ✨ AI 分琐碎，闲时伴家人。<br>
+                ✨ 智能启梦想，创意任驰飞。<br>
+                ✨ 人机共协作，智引向乾坤！<br><br>
+                🧧 🏮 🎊
+            </div>
         </div>
 
-        <button class="btn" onclick="alert('祝您马年行大运 · 万事皆如意！✨')">🎁 接收祝福</button>
-
-        <!-- 认证与发送区域 -->
+        <!-- 认证区域 -->
         <div class="auth-section">
             <!-- 未登录状态 -->
             <div id="login-view">
-                <p style="margin: 0 0 10px 0; font-size: 14px; color: #636e72;">
-                    💬 发送弹幕前请先登录 GitHub
-                </p>
-                <button class="github-login-btn" onclick="loginWithGitHub()">
-                    <svg height="20" viewBox="0 0 16 16" version="1.1" width="20" aria-hidden="true"><path fill="white" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                <p style="margin-bottom: 15px; color: #666;">💬 发送弹幕前请先登录 GitHub</p>
+                <button id="login-btn" class="btn">
+                    <svg height="20" viewBox="0 0 16 16" version="1.1" width="20" aria-hidden="true" fill="white"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>
                     使用 GitHub 登录
                 </button>
             </div>
 
             <!-- 已登录状态 -->
-            <div id="logged-in-view" class="user-info">
-                <img id="user-avatar" src="" alt="Avatar">
-                <span class="user-name" id="user-name">User</span>
-                <button class="logout-btn" onclick="logout()">退出</button>
-                
-                <div class="input-area" style="display: flex;">
-                    <input type="text" id="danmaku-input" placeholder="写下你的马年祝福 (限50字)..." maxlength="50">
-                    <button id="send-btn" onclick="sendDanmaku()">发送</button>
-                </div>
+            <div id="user-view" class="user-info">
+                <img id="user-avatar" src="" alt="Avatar" class="avatar">
+                <span id="user-name" style="font-weight: bold;"></span>
+                <button id="logout-btn" class="btn btn-outline" style="padding: 8px 15px; font-size: 14px;">退出</button>
             </div>
             
-            <div class="status" id="status"></div>
+            <div id="error-msg" class="error-msg"></div>
         </div>
 
-        <div class="footer">
-            ✨ 2026 农历马年 ✨<br>
-            <small>弹幕将作为 Issue 存储在仓库中</small>
+        <!-- 弹幕输入框 (登录后显示) -->
+        <div id="input-area" class="input-area">
+            <h3>✨ 发送您的马年祝福 ✨</h3>
+            <p style="font-size: 0.9em; color: #666;">弹幕将作为 Issue 存储在仓库中</p>
+            <div class="input-group">
+                <input type="text" id="danmu-input" placeholder="输入祝福语，例如：马年行大运，AI 助腾飞！" maxlength="50">
+                <button id="send-btn" class="btn">发送 🚀</button>
+            </div>
         </div>
+
+        <!-- 弹幕展示区 -->
+        <div class="danmu-container" id="danmu-screen">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666;" id="loading-text">
+                正在加载弹幕...
+            </div>
+        </div>
+
+        <footer>
+            <p>Powered by GitHub Pages & OAuth | 🐎 2026 Happy Year of the Horse</p>
+        </footer>
     </div>
 
     <script>
-        // ================= 配置区域 (必须修改) =================
-        const CONFIG = {
-            // 您的 GitHub 用户名
-            owner: 'kudou1994', 
-            // 您的仓库名
-            repo: 'kudou.github.io',
-            // 用于标识弹幕的 Label
-            label: 'danmaku',
-            // OAuth App 的 Client ID (如果没有，见下方说明，可先用公共测试或跳过验证步骤)
-            // ⚠️ 注意：为了演示方便，这里使用一种无需后端回调的简易模式
-            // 如果您没有注册 OAuth App，用户登录将无法自动跳回。
-            // 建议：暂时仅作为演示，或使用 Personal Token 硬编码（不推荐公开）
-            // 此处我们采用 "URL Hash Token" 模式，需要用户在 GitHub 设置里生成 Token 粘贴？
-            // 不，太复杂。我们采用最通用的：引导用户去生成 Token 并粘贴，或者使用 OAuth Flow。
-            
-            // 【重要】为了最简单实现，我们让用户手动输入 Token 或者使用 OAuth 跳转。
-            // 下面实现的是：点击登录 -> 跳转 GitHub -> 用户授权 -> 跳回本页 -> 提取 Token
-            // 这需要您在 GitHub 创建一个 OAuth App。
-            clientId: 'Ov23liuXYxHOmaUSKNUx', 
-            // 回调地址：必须是您部署后的 GitHub Pages 地址，例如：
-            // https://yourname.github.io/your-repo/
-            redirectUri: 'https://kudou1994.github.io/kudou.github.io/' 
+        // ================= 配置区域 (请修改这里) =================
+        const GITHUB_CONFIG = {
+            clientId: 'Ov23liuXYxHOmaUSKNUx', // 您的 Client ID
+            owner: 'kudou1994',     // 【重要】替换为您的 GitHub 用户名
+            repo: 'kugou.github.io'             // 【重要】替换为您的仓库名 (用于存储 Issue)
         };
-        // =====================================================
+        // =======================================================
 
-        // 初始化弹幕
-        const container = document.getElementById('danmaku-container');
-        const danmaku = new Danmaku({
-            container: container,
-            speed: 6,
-            opacity: 0.9,
-            fontSize: 18,
-            color: '#ffffff',
-            borderColor: '#000000',
-            zIndex: 9999,
-            data: []
+        // DOM 元素
+        const loginView = document.getElementById('login-view');
+        const userView = document.getElementById('user-view');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const inputArea = document.getElementById('input-area');
+        const danmuInput = document.getElementById('danmu-input');
+        const sendBtn = document.getElementById('send-btn');
+        const danmuScreen = document.getElementById('danmu-screen');
+        const loadingText = document.getElementById('loading-text');
+        const errorMsg = document.getElementById('error-msg');
+
+        let accessToken = null;
+        let userInfo = null;
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            handleAuthCallback();
+            checkLoginStatus();
+            loadDanmus();
         });
 
-        let userToken = localStorage.getItem('gh_token');
-        let userInfo = JSON.parse(localStorage.getItem('gh_user') || 'null');
+        // 1. 处理 OAuth 回调 (隐式授权)
+        function handleAuthCallback() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const token = params.get('access_token');
+            const error = params.get('error');
 
-        const loginView = document.getElementById('login-view');
-        const loggedInView = document.getElementById('logged-in-view');
-        const statusEl = document.getElementById('status');
-        const sendBtn = document.getElementById('send-btn');
-        const inputEl = document.getElementById('danmaku-input');
-
-        // 检查 URL 中是否有 Token (OAuth 回调)
-        function checkUrlForToken() {
-            const hash = window.location.hash;
-            if (hash && hash.includes('access_token=')) {
-                const params = new URLSearchParams(hash.substring(1));
-                const token = params.get('access_token');
-                if (token) {
-                    handleLoginSuccess(token);
-                    // 清理 URL
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            }
-        }
-
-        // 登录函数
-        function loginWithGitHub() {
-            if (CONFIG.clientId === '您的 OAuth Client ID') {
-                alert('⚠️ 配置缺失：\n请在代码中配置您的 GitHub OAuth Client ID。\n\n步骤：\n1. 访问 https://github.com/settings/applications/new\n2. 创建新应用\n3. Authorization callback URL 填写本页面完整网址\n4. 复制 Client ID 填入代码');
+            if (error) {
+                showError(`授权失败: ${params.get('error_description') || error}`);
+                window.history.replaceState({}, document.title, window.location.pathname);
                 return;
             }
 
-            const scope = 'public_repo';
-            const url = `https://github.com/login/oauth/authorize?client_id=${CONFIG.clientId}&redirect_uri=${encodeURIComponent(CONFIG.redirectUri)}&scope=${scope}`;
-            window.location.href = url;
-        }
-
-        // 处理登录成功
-        async function handleLoginSuccess(token) {
-            userToken = token;
-            localStorage.setItem('gh_token', token);
-            showStatus('登录成功，正在获取用户信息...', 'success');
-            
-            try {
-                const response = await fetch('https://api.github.com/user', {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                if (!response.ok) throw new Error('Failed to fetch user');
-                const user = await response.json();
-                
-                userInfo = user;
-                localStorage.setItem('gh_user', JSON.stringify(user));
-                updateUI(true);
-                showStatus(`欢迎回来，${user.login}！`, 'success');
-                loadExistingDanmaku(); // 加载历史弹幕
-            } catch (e) {
-                console.error(e);
-                showStatus('获取用户信息失败', 'error');
-                logout();
-            }
-        }
-
-        // 更新 UI
-        function updateUI(isLoggedIn) {
-            if (isLoggedIn && userInfo) {
-                loginView.style.display = 'none';
-                loggedInView.style.display = 'flex';
-                document.getElementById('user-avatar').src = userInfo.avatar_url;
-                document.getElementById('user-name').textContent = userInfo.login;
-                inputEl.disabled = false;
-                sendBtn.disabled = false;
+            if (token) {
+                accessToken = token;
+                localStorage.setItem('github_token', token);
+                // 清理 URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+                console.log("Token 获取成功");
             } else {
-                loginView.style.display = 'block';
-                loggedInView.style.display = 'none';
-                inputEl.disabled = true;
-                sendBtn.disabled = true;
+                // 尝试从本地存储获取
+                accessToken = localStorage.getItem('github_token');
             }
         }
 
-        // 退出登录
-        function logout() {
-            localStorage.removeItem('gh_token');
-            localStorage.removeItem('gh_user');
-            userToken = null;
-            userInfo = null;
-            updateUI(false);
-            showStatus('已退出登录', '');
+        // 2. 检查登录状态并更新 UI
+        async function checkLoginStatus() {
+            if (!accessToken) {
+                showLoggedOut();
+                return;
+            }
+
+            try {
+                // 获取用户信息以验证 Token 有效性
+                const response = await fetch('https://api.github.com/user', {
+                    headers: {
+                        'Authorization': `token ${accessToken}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    userInfo = await response.json();
+                    showLoggedIn(userInfo);
+                } else {
+                    // Token 失效
+                    localStorage.removeItem('github_token');
+                    accessToken = null;
+                    showLoggedOut();
+                }
+            } catch (err) {
+                console.error('Check login failed:', err);
+                showLoggedOut();
+            }
         }
 
-        // 发送弹幕
-        async function sendDanmaku() {
-            const text = inputEl.value.trim();
-            if (!text) return alert('请输入内容');
-            if (!userToken) return alert('未登录');
+        function showLoggedIn(user) {
+            loginView.style.display = 'none';
+            userView.style.display = 'flex';
+            inputArea.style.display = 'block';
+            
+            userAvatar.src = user.avatar_url;
+            userName.textContent = user.login;
+            errorMsg.style.display = 'none';
+        }
+
+        function showLoggedOut() {
+            loginView.style.display = 'block';
+            userView.style.display = 'none';
+            inputArea.style.display = 'none';
+        }
+
+        // 3. 登录/退出事件
+        loginBtn.addEventListener('click', () => {
+            const redirectUri = window.location.href.split('#')[0];
+            const scope = 'public_repo'; // 需要创建 Issue 的权限
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=token`;
+            window.location.href = authUrl;
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('github_token');
+            accessToken = null;
+            userInfo = null;
+            location.reload();
+        });
+
+        // 4. 发送弹幕 (创建 Issue)
+        sendBtn.addEventListener('click', async () => {
+            const content = danmuInput.value.trim();
+            if (!content) return alert('请输入祝福语！');
+            if (!accessToken) return alert('请先登录！');
 
             sendBtn.disabled = true;
-            showStatus('发送中...', 'loading');
+            sendBtn.textContent = '发送中...';
 
             try {
-                const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/issues`, {
+                const title = `🐎 马年祝福: ${userInfo.login}`;
+                const body = `**发送者**: ${userInfo.login}\n**时间**: ${new Date().toLocaleString('zh-CN')}\n\n> ${content}`;
+
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `token ${userToken}`,
-                        'Accept': 'application/vnd.github.v3+json',
+                        'Authorization': `token ${accessToken}`,
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        title: text,
-                        labels: [CONFIG.label],
-                        body: `来自 ${userInfo.login} 的马年祝福\n时间：${new Date().toLocaleString()}`
+                        title: title,
+                        body: body,
+                        labels: ['danmu', 'horse-year-2026']
                     })
                 });
 
-                if (!res.ok) {
-                    const err = await res.json();
-                    throw new Error(err.message);
+                if (response.ok) {
+                    alert('🎉 祝福发送成功！');
+                    danmuInput.value = '';
+                    loadDanmus(); // 重新加载
+                } else {
+                    const errData = await response.json();
+                    throw new Error(errData.message || '发送失败');
                 }
-
-                // 发送成功，本地显示
-                danmaku.push({
-                    text: text,
-                    color: '#ffd700',
-                    mode: 'rtl'
-                });
-                
-                inputEl.value = '';
-                showStatus('发送成功！🎉', 'success');
-                setTimeout(() => showStatus('', ''), 3000);
-
-            } catch (e) {
-                console.error(e);
-                showStatus('发送失败：' + e.message, 'error');
+            } catch (err) {
+                showError('发送失败: ' + err.message);
             } finally {
                 sendBtn.disabled = false;
+                sendBtn.textContent = '发送 🚀';
             }
-        }
+        });
 
-        // 加载现有弹幕 (Issues)
-        async function loadExistingDanmaku() {
+        // 5. 加载弹幕 (读取 Issues)
+        async function loadDanmus() {
+            loadingText.style.display = 'block';
+            danmuScreen.innerHTML = ''; // 清空
+            danmuScreen.appendChild(loadingText);
+
             try {
-                const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/issues?labels=${CONFIG.label}&state=open&per_page=50`);
-                if (!res.ok) return;
-                const issues = await res.json();
-                
-                issues.forEach((issue, index) => {
-                    setTimeout(() => {
-                        danmaku.push({
-                            text: issue.title,
-                            color: getRandomColor(),
-                            mode: 'rtl'
-                        });
-                    }, index * 800);
-                });
-            } catch (e) {
-                console.error('加载历史弹幕失败', e);
+                // 公开仓库不需要 Token 即可读取 Issues，但为了速率限制最好带上
+                const headers = { 'Accept': 'application/json' };
+                if (accessToken) {
+                    headers['Authorization'] = `token ${accessToken}`;
+                }
+
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?labels=danmu&state=open&per_page=20`;
+                const response = await fetch(url, { headers });
+
+                if (response.ok) {
+                    const issues = await response.json();
+                    renderDanmus(issues);
+                } else {
+                    throw new Error('无法加载弹幕');
+                }
+            } catch (err) {
+                loadingText.textContent = '加载失败，请检查仓库配置或网络。';
+                console.error(err);
             }
         }
 
-        function getRandomColor() {
-            const colors = ['#ff7675', '#74b9ff', '#55efc4', '#a29bfe', '#fd79a8', '#ffeaa7'];
-            return colors[Math.floor(Math.random() * colors.length)];
-        }
-
-        function showStatus(msg, type) {
-            statusEl.textContent = msg;
-            statusEl.className = 'status ' + type;
-        }
-
-        // 初始化
-        window.onload = () => {
-            checkUrlForToken();
-            if (userToken && userInfo) {
-                updateUI(true);
-                loadExistingDanmaku();
-            } else {
-                updateUI(false);
-            }
+        function renderDanmus(issues) {
+            danmuScreen.innerHTML = ''; // 清除 loading
             
-            // 回车发送
-            inputEl.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendDanmaku();
+            if (issues.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.position = 'absolute';
+                emptyMsg.style.top = '50%';
+                emptyMsg.style.left = '50%';
+                emptyMsg.style.transform = 'translate(-50%, -50%)';
+                emptyMsg.style.color = '#666';
+                emptyMsg.textContent = '暂无弹幕，快来发第一条吧！';
+                danmuScreen.appendChild(emptyMsg);
+                return;
+            }
+
+            // 简单的弹幕动画逻辑
+            issues.forEach((issue, index) => {
+                // 提取正文中的实际祝福内容 (去掉元数据)
+                let content = issue.body;
+                const match = content.match(/> (.*)/);
+                if (match) content = match[1];
+                else content = issue.title.replace('🐎 马年祝福: ', '');
+
+                const track = document.createElement('div');
+                track.className = 'danmu-track';
+                track.textContent = `${issue.user.login}: ${content}`;
+                
+                // 随机位置和速度
+                const topPos = Math.random() * 80 + 10; // 10% - 90%
+                const duration = Math.random() * 10 + 10; // 10s - 20s
+                const delay = Math.random() * 5; // 0-5s 延迟
+
+                track.style.top = `${topPos}%`;
+                track.style.animation = `moveLeft ${duration}s linear ${delay}s infinite`;
+                
+                // 动态添加 keyframe (如果尚未存在)
+                if (!document.getElementById('danmu-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'danmu-style';
+                    style.textContent = `
+                        @keyframes moveLeft {
+                            from { transform: translateX(${danmuScreen.offsetWidth}px); }
+                            to { transform: translateX(-100%); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                } else {
+                    // 如果屏幕大小改变，可能需要重新计算，这里简化处理
+                    const styleSheet = document.getElementById('danmu-style').sheet;
+                    // 简单起见，我们假设宽度固定或使用百分比，实际生产中需监听 resize
+                }
+
+                danmuScreen.appendChild(track);
             });
-        };
+            
+            // 修正动画起点为当前屏幕宽度
+            const style = document.getElementById('danmu-style');
+            if(style) {
+                style.textContent = `
+                    @keyframes moveLeft {
+                        from { transform: translateX(${danmuScreen.offsetWidth}px); }
+                        to { transform: translateX(-100%); }
+                    }
+                `;
+            }
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+        }
     </script>
 </body>
 </html>
