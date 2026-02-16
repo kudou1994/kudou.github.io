@@ -425,7 +425,7 @@
 
             try {
                 // 将弹幕内容作为评论发布到指定 Issue
-                const issueNumber = 2; // 指定用于弹幕的 Issue 号
+                const issueNumber = 1; // 指定用于弹幕的 Issue 号
                 const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues/${issueNumber}/comments`, {
                     method: 'POST',
                     headers: {
