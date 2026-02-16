@@ -2,91 +2,155 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>弹幕测试</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赵宇的马年祝福 - 弹幕版</title>
+    <!-- 引入 Danmaku 样式 (如果库需要) -->
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #000; /* 黑色背景 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* 视口高度 */
-            overflow: hidden; /* 防止出现滚动条 */
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f0f2f5;
+            text-align: center;
+            padding: 20px;
         }
-        #video-container {
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             position: relative;
-            width: 1280px; /* 设置容器宽度 */
-            height: 720px; /* 设置容器高度 */
-            overflow: hidden;
+            z-index: 1;
         }
-        #bg-video {
-            width: 100%;
-            height: 100%;
-            object-fit: fill; /* 填充整个容器，可能会变形 */
-            z-index: 1; /* 视频在底层 */
-        }
+        /* 弹幕容器样式 */
         #danmaku-container {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            pointer-events: none; /* 让弹幕不影响鼠标事件穿透到下方视频 */
-            z-index: 9999; /* 确保弹幕在最上层 */
+            height: 100vh;
+            pointer-events: none; /* 让鼠标事件穿透弹幕层 */
+            z-index: 9999;
+            overflow: hidden;
         }
+        .content-box {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        h1 { color: #d93025; }
+        .emoji { font-size: 1.5em; }
     </style>
-    <!-- 添加 canvas-danmaku 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-danmaku@latest/dist/index.min.js"></script>
+    
+    <!-- 【关键步骤 1】引入 Danmaku 库 (使用 cdnjs) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/danmaku.js/1.2.0/danmaku.min.js"></script>
 </head>
 <body>
-    <div id="video-container">
-        <video id="bg-video" autoplay muted loop>
-            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-            您的浏览器不支持视频标签。
-        </video>
-        <canvas id="danmaku-container"></canvas>
+
+    <!-- 弹幕显示层 -->
+    <div id="danmaku-container"></div>
+
+    <div class="container">
+        <h1>🐎 马年大吉 🐎</h1>
+        <h2>赵宇的马年祝福</h2>
+        
+        <div class="content-box">
+            <p class="emoji">2026 🧧 🏮 🎊</p>
+            <h3>🐎 马年驾到，AI 加持！</h3>
+            <p>赵宇在这里祝您：</p>
+            <ul style="list-style: none; padding: 0;">
+                <li>AI 分琐碎，闲时伴家人。</li>
+                <li>智能启梦想，创意任驰飞。</li>
+                <li>人机共协作，智引向乾坤！</li>
+            </ul>
+            <p>🎁 接收祝福</p>
+        </div>
+
+        <div style="margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px;">
+            <p>💬 发送弹幕前请先登录 GitHub</p>
+            <a href="#" class="btn">使用 GitHub 登录</a>
+            <a href="#" class="btn" style="background-color: #6c757d;">User 退出</a>
+            <br>
+            <small>✨ 2026 农历马年 ✨ 弹幕将作为 Issue 存储在仓库中</small>
+        </div>
+        
+        <!-- 模拟发送弹幕的输入框 (仅演示用) -->
+        <div style="margin-top: 20px;">
+            <input type="text" id="danmaku-input" placeholder="输入弹幕内容..." style="padding: 8px; width: 60%;">
+            <button onclick="sendDanmaku()" class="btn" style="margin-left: 5px;">发送</button>
+        </div>
     </div>
 
+    <!-- 【关键步骤 2】初始化 Danmaku 的逻辑 -->
     <script>
-        // 等待页面所有资源加载完成
-        window.addEventListener('load', function() {
-            const video = document.getElementById('bg-video');
-            const canvas = document.getElementById('danmaku-container');
+        // 等待页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查 Danmaku 是否已定义，防止报错
+            if (typeof Danmaku !== 'undefined') {
+                // 初始化弹幕实例
+                const danmaku = new Danmaku({
+                    container: document.getElementById('danmaku-container'),
+                    speed: 5, // 速度
+                    opacity: 0.8,
+                    loop: true
+                });
 
-            // 使用 canvas-danmaku 库
-            let danmaku = new Danmaku({
-                container: canvas,
-                video: video, // 绑定视频元素
-                // 可选配置项
-                // width: 1280, // 容器宽度，默认为容器实际宽度
-                // height: 720, // 容器高度，默认为容器实际高度
-                // fontSize: 24, // 默认字体大小
-                // speed: 8, // 弹幕速度，每个身位像素数
-                // color: '#ffffff', // 默认颜色
-                // opacity: 1, // 默认透明度
-                // data: [] // 初始弹幕数据数组
-            });
+                // 添加一些初始欢迎弹幕
+                const welcomeMessages = [
+                    "马年大吉！",
+                    "AI 加持，创意无限！",
+                    "赵宇祝您新年快乐！",
+                    "2026 冲鸭！",
+                    "弹幕测试成功~"
+                ];
 
-            // 示例：添加一些弹幕
-            // 注意：弹幕会在视频播放到指定时间点时显示
-            const sampleData = [
-                { time: 5, text: 'Hello Danmaku!', color: '#fff' },
-                { time: 8, text: '这是一条测试弹幕', color: '#ff0' },
-                { time: 10, text: 'Canvas弹幕库', color: '#f0f' },
-                { time: 15, text: '跟随视频播放', color: '#0f0' },
-                { time: 18, text: '时间同步', color: '#0ff' },
-                { time: 20, text: '弹幕内容', color: '#f00' },
-                { time: 25, text: '更多内容...', color: '#fff' },
-            ];
+                welcomeMessages.forEach((msg, index) => {
+                    setTimeout(() => {
+                        danmaku.emit({
+                            text: msg,
+                            color: '#fff',
+                            mode: 'rtl' // right to left
+                        });
+                    }, index * 1000);
+                });
 
-            // 将示例数据加载到弹幕实例中
-            danmaku.load(sampleData);
-
-            // 手动发送一条弹幕 (可选)
-            // danmaku.emit('新弹幕！', { color: '#ff0000' });
-
+                // 将实例挂载到 window 以便全局调用 (可选)
+                window.myDanmaku = danmaku;
+            } else {
+                console.error("Danmaku 库未加载成功，请检查网络连接或 CDN 链接。");
+                alert("弹幕库加载失败，请检查网络。");
+            }
         });
+
+        // 模拟发送弹幕函数
+        function sendDanmaku() {
+            const input = document.getElementById('danmaku-input');
+            const text = input.value.trim();
+            if (text && window.myDanmaku) {
+                window.myDanmaku.emit({
+                    text: text,
+                    color: '#' + Math.floor(Math.random()*16777215).toString(16), // 随机颜色
+                    mode: 'rtl'
+                });
+                input.value = '';
+            } else if (!window.myDanmaku) {
+                alert("弹幕系统尚未初始化");
+            }
+        }
     </script>
 </body>
 </html>
