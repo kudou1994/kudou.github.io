@@ -3,440 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>赵宇的马年祝福</title>
+    <title>马年祝福 | 赵宇的AI世界</title>
     <style>
-        /* --- 全局样式与移动端适配 --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Microsoft YaHei', sans-serif;
             background-color: #0d0d0d;
             color: #fff;
-            overflow-x: hidden; /* 防止水平滚动条影响弹幕 */
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- 主容器 --- */
-        .container {
+            overflow-x: hidden; /* 防止水平滚动 */
             position: relative;
-            width: 100%;
-            height: 100%;
+        }
+
+        #main-container {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            text-align: center;
-            z-index: 10;
+            justify-content: center;
             padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
         }
 
-        /* --- 背景装饰 --- */
-        .bg-decoration {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 10% 20%, rgba(255, 102, 0, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 204, 255, 0.1) 0%, transparent 20%);
-            pointer-events: none;
-            z-index: 1;
-        }
-        .floating-shapes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .shape {
-            position: absolute;
-            background: linear-gradient(45deg, #ff6a00, #00ccff);
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 15s infinite linear;
-        }
-        @keyframes float {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(-100vw, 100vh) rotate(720deg); }
+        .welcome-text {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.8;
         }
 
-        /* --- 标题 --- */
         h1 {
             font-size: 2.5em;
             margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-            background: linear-gradient(to right, #ff6a00, #00ccff);
+            background: linear-gradient(45deg, #ff8a00, #e52e71, #22c1c3);
             -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             background-clip: text;
-            color: transparent;
             animation: glow 2s infinite alternate;
         }
+
         @keyframes glow {
-            from { text-shadow: 0 0 5px #fff, 0 0 10px #ff6a00, 0 0 15px #00ccff; }
-            to { text-shadow: 0 0 10px #fff, 0 0 20px #ff6a00, 0 0 30px #00ccff; }
+            from { filter: drop-shadow(0 0 5px rgba(255, 138, 0, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(229, 46, 113, 0.8)); }
         }
 
-        /* --- 祝福语区域 --- */
-        .blessings {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            margin: 20px 0;
-            max-width: 90%;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
         .blessing-item {
-            font-size: 1.4em;
-            line-height: 1.8;
-            margin: 15px 0;
+            font-size: 1.2em;
+            line-height: 2;
+            margin: 10px 0;
             padding: 10px;
-            border-left: 4px solid #ff6a00;
             background: rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
-        }
-        .blessing-item:hover {
-            transform: scale(1.02);
-            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
         }
 
-        /* --- 登录/交互区域 --- */
-        .auth-section, .danmaku-input-section {
+        .blessing-item span {
+            color: gold;
+        }
+
+        .login-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .login-btn {
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .comment-section {
+            display: none;
             margin-top: 30px;
             width: 90%;
-        }
-        .login-btn {
-            background: linear-gradient(to right, #ff6a00, #00ccff);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 106, 0, 0.4);
-            transition: all 0.3s ease;
-        }
-        .login-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(255, 106, 0, 0.6);
-        }
-        .danmaku-controls {
-            display: flex;
-            gap: 10px;
-        }
-        #danmakuInput, #sendBtn {
-            padding: 12px 15px;
-            font-size: 1em;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            outline: none;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        #danmakuInput::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-        #sendBtn {
-            background: linear-gradient(to right, #00ccff, #ff6a00);
-            color: white;
-            border: none;
-            cursor: pointer;
-            min-width: 80px;
-        }
-        #sendBtn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+            max-width: 400px;
         }
 
-        /* --- 弹幕容器 --- */
-        #danmakuContainer {
+        .comment-input {
+            width: 70%;
+            padding: 12px;
+            font-size: 1em;
+            border-radius: 50px;
+            border: 1px solid #444;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .comment-submit {
+            width: 25%;
+            margin-left: 5%;
+            padding: 12px;
+            background: linear-gradient(45deg, #22c1c3, #ff8a00);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .dms {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* 让弹幕不影响页面其他元素点击 */
-            z-index: 5;
-            overflow: hidden;
-        }
-        .danmaku-item {
-            position: absolute;
-            right: -400px; /* 初始位置在屏幕外右侧 */
-            white-space: nowrap;
-            padding: 6px 12px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            border-radius: 20px;
-            font-size: 1em;
-            color: #fff;
-            user-select: none;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            animation: danmakuMove linear;
-        }
-        @keyframes danmakuMove {
-            from { transform: translateX(0); }
-            to { transform: translateX(-100vw); }
+            pointer-events: none; /* 让弹幕不阻挡点击 */
+            z-index: 1;
         }
 
-        /* --- 响应式设计 --- */
-        @media (max-width: 768px) {
-            h1 { font-size: 2.2em; }
-            .blessing-item { font-size: 1.2em; }
-            .blessings { padding: 20px 15px; }
+        .dm {
+            position: absolute;
+            color: white;
+            font-size: 1.1em;
+            white-space: nowrap;
+            text-shadow: 0 0 5px black;
+            user-select: none;
+            padding: 5px 10px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            animation: moveDm linear infinite;
         }
-        @media (min-width: 769px) {
-            .container { max-width: 800px; margin: auto; }
-            h1 { font-size: 3em; }
-            .blessing-item { font-size: 1.4em; }
+
+        @keyframes moveDm {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100%); }
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8em;
+            opacity: 0.6;
+        }
+
+        /* 新增: 隐藏音频控件 */
+        audio {
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- 背景装饰 -->
-    <div class="bg-decoration"></div>
-    <div class="floating-shapes" id="shapesContainer"></div>
+    <!-- 新增: 音频元素 -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="" type="audio/mpeg"> <!-- 音频源将在JS中动态设置 -->
+        您的浏览器不支持音频元素。
+    </audio>
 
-    <!-- 弹幕容器 -->
-    <div id="danmakuContainer"></div>
-
-    <!-- 主内容区 -->
-    <div class="container">
+    <div id="main-container">
+        <p class="welcome-text">Welcome to My AI World</p>
         <h1>🐎 马年驾到，AI 加持！</h1>
         
-        <div class="blessings">
-            <p class="blessing-item">✨ <strong>赵宇祝您：</strong></p>
-            <p class="blessing-item">✨ <strong>AI 分琐碎，闲时伴家人。</strong></p>
-            <p class="blessing-item">✨ <strong>智能启梦想，创意任驰飞。</strong></p>
-            <p class="blessing-item">✨ <strong>人机共协作，智引向乾坤！</strong></p>
+        <div class="blessing-item"><span>✨</span> AI 分琐碎，闲时伴家人。</div>
+        <div class="blessing-item"><span>✨</span> 智能启梦想，创意任驰飞。</div>
+        <div class="blessing-item"><span>✨</span> 人机共协作，智引向乾坤！</div>
+
+        <div class="login-section" id="loginSection">
+            <button class="login-btn" id="loginBtn">登录 GitHub 发送弹幕</button>
         </div>
 
-        <div class="auth-section" id="authSection">
-            <button class="login-btn" onclick="loginWithGitHub()">>Login to Send Danmaku</button>
-        </div>
-        <div class="danmaku-input-section" id="danmakuInputSection" style="display: none;">
-            <div class="danmaku-controls">
-                <input type="text" id="danmakuInput" placeholder="输入您的弹幕祝福..." maxlength="50">
-                <button id="sendBtn" onclick="submitDanmaku()">发射</button>
-            </div>
+        <div class="comment-section" id="commentSection">
+            <input type="text" class="comment-input" id="commentInput" placeholder="输入弹幕...">
+            <button class="comment-submit" id="commentSubmit">发送</button>
         </div>
     </div>
 
+    <div class="dms" id="danmakuContainer"></div>
+
+    <div class="footer">
+        <p>By 赵宇 | Powered by GitHub Issues</p>
+    </div>
+
     <script>
-        // --- GitHub 配置 ---
+        // --- 配置与全局变量 ---
         const GITHUB_CONFIG = {
-            clientId: 'Ov23liuXYxHOmaUSKNUx',
+            clientId: (() => {
+                // 客户端ID经过Base64编码和简单异或混淆
+                const encoded = "T3YyM2xpdVhZeEhPbWFVU0tOVXg=";
+                const key = 0xAB; // 异或密钥
+                let decodedArray = atob(encoded).split('').map(c => c.charCodeAt(0));
+                for (let i = 0; i < decodedArray.length; i++) {
+                    decodedArray[i] ^= key;
+                }
+                return String.fromCharCode(...decodedArray);
+            })(),
+            clientSecret: 'your_client_secret', // 由于是前端页面，此值无实际用途，仅为配置完整性保留
             owner: 'kudou1994',
-            repo: 'kudou.github.io'
+            repo: 'kudou.github.io',
+            issueNumber: 1 // 假设使用 Issue #1 作为弹幕墙
         };
 
-        // --- 弹幕相关变量 ---
-        let danmakuInterval;
+        // --- 音乐配置 ---
+        // 注意：这是一个示例链接，可能随时失效。请替换为你自己托管的合法音乐文件。
+        const musicUrl = 'https://cdn.glitch.global/3f4c3f8a-9b2a-4f3a-9b1c-8e4d5f6a7b8c/new-year-festival-116204.mp3?v=1718860000'; // 示例喜庆音乐链接
 
-        // --- 初始化 ---
-        document.addEventListener('DOMContentLoaded', () => {
-            createFloatingShapes();
-            loadAndRenderDanmaku();
-            checkForTokenInUrl();
-            startDanmakuLoop();
-        });
+        const ACCESS_TOKEN_KEY = 'gh_access_token';
+        let accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+        let audioInitialized = false; // 标记音频是否已由用户操作初始化
 
-        // --- 创建浮动背景形状 ---
-        function createFloatingShapes() {
-            const container = document.getElementById('shapesContainer');
-            for (let i = 0; i < 15; i++) {
-                const shape = document.createElement('div');
-                shape.classList.add('shape');
-                
-                const size = Math.random() * 100 + 20;
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const delay = Math.random() * 15;
+        // --- DOM 元素引用 ---
+        const loginSection = document.getElementById('loginSection');
+        const commentSection = document.getElementById('commentSection');
+        const loginBtn = document.getElementById('loginBtn');
+        const commentInput = document.getElementById('commentInput');
+        const commentSubmit = document.getElementById('commentSubmit');
+        const danmakuContainer = document.getElementById('danmakuContainer');
+        const bgMusic = document.getElementById('bg-music'); // 新增: 获取音频元素
 
-                shape.style.width = `${size}px`;
-                shape.style.height = `${size}px`;
-                shape.style.left = `${posX}%`;
-                shape.style.top = `${posY}%`;
-                shape.style.animationDelay = `-${delay}s`;
-                
-                container.appendChild(shape);
+        // --- 工具函数 ---
+        function getQueryVariable(variable) {
+            const query = window.location.search.substring(1);
+            const vars = query.split('&');
+            for (let i = 0; i < vars.length; i++) {
+                const pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) === variable) {
+                    return decodeURIComponent(pair[1]);
+                }
+            }
+            return null;
+        }
+
+        // --- 音乐播放控制 ---
+        function initMusic() {
+            if (!musicUrl) {
+                console.warn("未配置音乐链接，无法播放背景音乐。");
+                return;
+            }
+            bgMusic.src = musicUrl;
+            // 首先尝试静音播放，以绕过自动播放策略限制
+            bgMusic.muted = true;
+            bgMusic.play().then(() => {
+                console.log("背景音乐已静音加载。");
+            }).catch(e => {
+                console.warn("自动静音播放失败，等待用户交互:", e);
+                // 如果静音播放也失败，则严格依赖用户交互
+            });
+        }
+
+        function playMusicOnInteraction() {
+            if (audioInitialized) return; // 防止重复初始化
+            
+            bgMusic.muted = false; // 取消静音
+            const playPromise = bgMusic.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("背景音乐已通过用户交互启动。");
+                    audioInitialized = true;
+                    // 移除事件监听器，因为只需要初始化一次
+                    document.removeEventListener('click', playMusicOnInteraction);
+                }).catch(error => {
+                    console.error("即使在用户交互后，音乐播放仍失败:", error);
+                    // 可以选择提示用户手动点击播放按钮
+                });
             }
         }
 
-        // --- 检查 URL 中的 token ---
-        function checkForTokenInUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            if (code) {
-                exchangeCodeForToken(code);
-            }
-            // 清理 URL 中的 code 参数
-            if (window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // --- 登录逻辑 ---
-        function loginWithGitHub() {
-            const redirectUri = encodeURIComponent(window.location.href);
+        // --- GitHub OAuth 登录流程 ---
+        function initiateGithubLogin() {
+            const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
             const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${redirectUri}&scope=public_repo`;
             window.location.href = authUrl;
         }
 
-        // --- 交换 code 获取 token ---
-        async function exchangeCodeForToken(code) {
-            try {
-                const response = await fetch('https://gh-token-exchange-proxy.fly.dev/exchange', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        code: code,
-                        client_id: GITHUB_CONFIG.clientId,
-                        client_secret: 'YOUR_CLIENT_SECRET_HERE' // 注意：这不能是真正的密钥，仅作演示
-                    })
-                });
-                const data = await response.json();
-                if(data.token) {
-                    localStorage.setItem('github_token', data.token);
-                    showDanmakuInput(); // 获取token后显示输入框
-                    console.log('Token received and saved.');
-                } else {
-                    throw new Error(data.error || 'Failed to get token');
-                }
-            } catch (error) {
-                console.error('Error getting token:', error);
-                alert('获取授权失败，请重试。');
-            }
-        }
-
-
-        // --- 显示弹幕输入框 ---
-        function showDanmakuInput() {
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('danmakuInputSection').style.display = 'block';
-        }
-
-        // --- 发送弹幕 ---
-        async function submitDanmaku() {
-            const input = document.getElementById('danmakuInput');
-            const comment = input.value.trim();
-            if (!comment) return;
-
-            const token = localStorage.getItem('github_token');
-            if (!token) {
-                alert('请先登录！');
-                return;
-            }
-
-            document.getElementById('sendBtn').disabled = true;
-            document.getElementById('sendBtn').textContent = '发送中...';
-
-            try {
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues`, {
+        function handleGithubCallback() {
+            const code = getQueryVariable('code');
+            if (code && !accessToken) {
+                fetch(`https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        title: `Danmaku: ${comment.substring(0, 20)}...`, // Issue 标题
-                        body: comment, // Issue 内容
-                        labels: ["danmaku"] // 标签，方便筛选
+                        client_id: GITHUB_CONFIG.clientId,
+                        client_secret: GITHUB_CONFIG.clientSecret,
+                        code: code,
+                        redirect_uri: window.location.origin + window.location.pathname
                     })
-                });
-
-                if (response.ok) {
-                    input.value = '';
-                    // 发送成功后，立即在前端添加一条弹幕
-                    addDanmakuToScreen(comment);
-                } else {
-                    const errData = await response.json();
-                    console.error('Failed to post issue:', errData);
-                    alert(`发送失败: ${errData.message || '未知错误'}`);
-                }
-            } catch (error) {
-                console.error('Error posting danmaku:', error);
-                alert('网络错误，请稍后重试。');
-            } finally {
-                document.getElementById('sendBtn').disabled = false;
-                document.getElementById('sendBtn').textContent = '发射';
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.access_token) {
+                        accessToken = data.access_token;
+                        localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+                        window.history.replaceState({}, document.title, window.location.pathname); // 清除URL中的code参数
+                        updateUIForLoggedIn();
+                    } else {
+                        console.error('Failed to get access token:', data);
+                    }
+                })
+                .catch(error => console.error('Error during token exchange:', error));
             }
         }
 
-        // --- 加载并渲染弹幕 ---
-        async function loadAndRenderDanmaku() {
-            try {
-                // 使用匿名请求获取公开仓库的 issues
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?labels=danmaku&state=open`);
-                const issues = await response.json();
+        // --- UI 更新逻辑 ---
+        function updateUIForLoggedIn() {
+            loginSection.style.display = 'none';
+            commentSection.style.display = 'block';
+        }
 
-                issues.forEach(issue => {
-                    // 将 Issue Body 作为弹幕内容
-                    if (issue.body) {
-                        addDanmakuToScreen(issue.body);
+        function updateUIForLoggedOut() {
+            loginSection.style.display = 'block';
+            commentSection.style.display = 'none';
+        }
+
+        // --- 弹幕功能 ---
+        function createAndAppendDanmaku(text) {
+            const dmElement = document.createElement('div');
+            dmElement.className = 'dm';
+            dmElement.textContent = text;
+
+            // 随机垂直位置
+            const topOffset = Math.random() * (window.innerHeight * 0.8);
+            dmElement.style.top = `${topOffset}px`;
+
+            // 随机动画持续时间
+            const duration = 15 + Math.random() * 10;
+            dmElement.style.animationDuration = `${duration}s`;
+
+            danmakuContainer.appendChild(dmElement);
+
+            // 动画结束后移除元素以优化性能
+            dmElement.addEventListener('animationend', () => {
+                dmElement.remove();
+            });
+        }
+
+        async function fetchAndRenderComments(issueNumber) {
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues/${issueNumber}/comments`,
+                    {
+                        headers: accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}
+                    }
+                );
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const comments = await response.json();
+                comments.forEach(comment => {
+                    // 过滤掉可能的空内容或系统消息
+                    if (comment.body && comment.body.trim() !== '') {
+                        createAndAppendDanmaku(comment.body.trim());
                     }
                 });
             } catch (error) {
-                console.error('Failed to load danmaku:', error);
+                console.error("获取评论失败:", error);
             }
         }
 
-        // --- 将单条弹幕添加到屏幕上 ---
-        function addDanmakuToScreen(text) {
-            const container = document.getElementById('danmakuContainer');
-            const danmakuItem = document.createElement('div');
-            danmakuItem.className = 'danmaku-item';
-            danmakuItem.textContent = text;
+        async function postComment(body, issueNumber) {
+            if (!body || !body.trim()) return alert("弹幕内容不能为空！");
+            if (!accessToken) return alert("请先登录！");
 
-            // 随机选择一个垂直轨道
-            const viewportHeight = window.innerHeight;
-            const margin = 30;
-            const lineHeight = 36; // 估算每行高度
-            const availableHeight = viewportHeight - 2 * margin;
-            const轨道数 = Math.floor(availableHeight / lineHeight);
-            const randomTrackIndex = Math.floor(Math.random() * 轨道数);
-            const topPos = margin + randomTrackIndex * lineHeight;
-            
-            danmakuItem.style.top = `${topPos}px`;
-
-            // 随机速度
-            const duration = Math.random() * 10 + 10; // 10-20秒
-            danmakuItem.style.animationDuration = `${duration}s`;
-
-            container.appendChild(danmakuItem);
-
-            // 动画结束后移除元素以优化性能
-            setTimeout(() => {
-                if (danmakuItem.parentNode) {
-                    danmakuItem.parentNode.removeChild(danmakuItem);
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues/${issueNumber}/comments`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: JSON.stringify({ body })
+                    }
+                );
+                if (response.ok) {
+                    createAndAppendDanmaku(body); // 立即本地显示，无需等待刷新
+                    commentInput.value = ''; // 清空输入框
+                } else {
+                    const errorData = await response.json();
+                    console.error("发送评论失败:", errorData);
+                    alert(`发送失败: ${errorData.message || '未知错误'}`);
                 }
-            }, duration * 1000);
-        }
-
-        // --- 循环加载新弹幕 ---
-        function startDanmakuLoop() {
-            danmakuInterval = setInterval(() => {
-                loadAndRenderDanmaku();
-            }, 30000); // 每30秒刷新一次
-        }
-
-        // --- 页面卸载前清理 ---
-        window.addEventListener('beforeunload', () => {
-            if (danmakuInterval) {
-                clearInterval(danmakuInterval);
+            } catch (error) {
+                console.error("发送评论请求失败:", error);
+                alert("网络错误，请稍后重试。");
             }
-        });
+        }
+
+        // --- 初始化 ---
+        function init() {
+            // 1. 初始化音乐
+            initMusic();
+
+            // 2. 检查 URL 是否有授权码，并处理回调
+            handleGithubCallback();
+
+            // 3. 根据是否有token更新UI
+            if (accessToken) {
+                updateUIForLoggedIn();
+            } else {
+                updateUIForLoggedOut();
+            }
+
+            // 4. 绑定事件
+            loginBtn.addEventListener('click', initiateGithubLogin);
+            
+            commentSubmit.addEventListener('click', () => {
+                postComment(commentInput.value, GITHUB_CONFIG.issueNumber);
+            });
+
+            commentInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    postComment(commentInput.value, GITHUB_CONFIG.issueNumber);
+                }
+            });
+
+            // 5. 绑定用户交互事件以启用音乐
+            document.addEventListener('click', playMusicOnInteraction);
+
+            // 6. 启动弹幕加载与定时刷新
+            let loadTimer = null;
+            const loadComments = () => {
+                fetchAndRenderComments(GITHUB_CONFIG.issueNumber);
+                loadTimer = setTimeout(loadComments, 10000); // 每10秒刷新一次
+            };
+            loadComments();
+
+            // 页面失焦时暂停加载，聚焦时恢复
+            window.addEventListener('blur', () => {
+                if (loadTimer) {
+                    clearTimeout(loadTimer);
+                    loadTimer = null;
+                }
+            });
+            window.addEventListener('focus', () => {
+                if (!loadTimer) {
+                    loadComments();
+                }
+            });
+        }
+
+        // 在DOM加载完成后执行初始化
+        document.addEventListener('DOMContentLoaded', init);
 
     </script>
 </body>
