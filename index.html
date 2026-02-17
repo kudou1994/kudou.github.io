@@ -246,6 +246,42 @@
             to { transform: translateX(-100%); }
         }
 
+        /* ========== 新发送弹幕 - 透明边框闪动效果 ========== */
+        .danmaku.new-sent {
+            border: 2px solid rgba(255,215,0,0.8);
+            animation: 
+                danmakuMove linear forwards,
+                borderFlash 0.5s ease-out 3;
+            box-shadow: 
+                0 3px 15px rgba(0,0,0,0.4),
+                0 0 20px rgba(255,215,0,0.5),
+                inset 0 0 10px rgba(255,215,0,0.3);
+        }
+
+        @keyframes borderFlash {
+            0% {
+                border-color: rgba(255,215,0,0.8);
+                box-shadow: 
+                    0 3px 15px rgba(0,0,0,0.4),
+                    0 0 20px rgba(255,215,0,0.5),
+                    inset 0 0 10px rgba(255,215,0,0.3);
+            }
+            50% {
+                border-color: rgba(255,215,0,0.2);
+                box-shadow: 
+                    0 3px 15px rgba(0,0,0,0.4),
+                    0 0 5px rgba(255,215,0,0.2),
+                    inset 0 0 2px rgba(255,215,0,0.1);
+            }
+            100% {
+                border-color: rgba(255,215,0,0.8);
+                box-shadow: 
+                    0 3px 15px rgba(0,0,0,0.4),
+                    0 0 20px rgba(255,215,0,0.5),
+                    inset 0 0 10px rgba(255,215,0,0.3);
+            }
+        }
+
         /* 红包容器 */
         .redpacket-container {
             position: fixed;
@@ -758,7 +794,7 @@
             .blessing-card p { font-size: 19px; }
         }
 
-        /* ========== 加载动画样式 ========== */
+        /* 加载动画样式 */
         .loader {
             position: fixed;
             top: 0;
@@ -806,7 +842,7 @@
             50% { opacity: 1; }
         }
 
-        /* ========== 加载进度条样式 ========== */
+        /* 加载进度条样式 */
         .loader-progress-container {
             width: 280px;
             height: 8px;
@@ -891,7 +927,6 @@
         <div class="loader-content">
             <div class="loader-horse">🐎</div>
             <div class="loader-text">正在加载新年祝福...</div>
-            <!-- ========== 新增进度条 ========== -->
             <div class="loader-progress-container">
                 <div class="loader-progress-bar" id="loaderProgressBar"></div>
             </div>
@@ -1082,10 +1117,10 @@
         // 烟花音效定时器
         let fireworkSoundTimer = null;
 
-        // ========== 弹幕实时加载定时器 ==========
+        // 弹幕实时加载定时器
         let danmakuRefreshTimer = null;
 
-        // ========== 当前弹幕列表（用于去重和限制数量）==========
+        // 当前弹幕列表（用于去重和限制数量）
         let currentDanmakus = [];
         const MAX_DANMAKU_COUNT = 15;
 
@@ -1098,7 +1133,7 @@
 
         // 页面加载完成后
         window.addEventListener('load', function() {
-            // ========== 启动加载进度条动画 ==========
+            // 启动加载进度条动画
             startLoaderProgress();
             
             setTimeout(() => {
@@ -1114,25 +1149,24 @@
             startDanmakuLoop();
             initMusic();
             
-            // ========== 启动弹幕实时刷新（1 秒间隔）==========
+            // 启动弹幕实时刷新（1 秒间隔）
             startDanmakuRefresh();
         });
 
-        // ========== 加载进度条动画（3 秒到 99%）==========
+        // 加载进度条动画（3 秒到 99%）
         function startLoaderProgress() {
             const progressBar = document.getElementById('loaderProgressBar');
             const progressText = document.getElementById('loaderProgressText');
             
             let progress = 0;
-            const duration = 3000; // 3 秒
-            const interval = 30; // 每 30ms 更新一次
+            const duration = 3000;
+            const interval = 30;
             const steps = duration / interval;
             const incrementPerStep = 99 / steps;
 
             const timer = setInterval(() => {
                 progress += incrementPerStep;
                 
-                // 使用缓动函数让进度更自然
                 const easedProgress = easeOutCubic(progress / 99) * 99;
                 
                 if (progress >= 99) {
@@ -1186,7 +1220,6 @@
             collectedBlessings.add(blessing);
             saveCollectedBlessings();
             
-            // 检查是否集齐
             if (collectedBlessings.size >= BLESSINGS.length) {
                 setTimeout(() => {
                     showCollectionComplete();
@@ -1228,7 +1261,6 @@
                 console.log('背景音乐加载失败');
             });
 
-            // 首次用户交互时尝试播放
             document.body.addEventListener('click', function firstClick() {
                 if (!isMusicPlaying) {
                     playMusic().catch(() => {});
@@ -1483,14 +1515,14 @@
             }
         }
 
-        // ========== 弹幕实时刷新（每秒从 Issues 获取最新弹幕）==========
+        // 弹幕实时刷新（每秒从 Issues 获取最新弹幕）
         function startDanmakuRefresh() {
             danmakuRefreshTimer = setInterval(async () => {
                 await refreshDanmakuFromIssues();
             }, 1000);
         }
 
-        // ========== 从 Issues 刷新弹幕 ==========
+        // 从 Issues 刷新弹幕
         async function refreshDanmakuFromIssues() {
             try {
                 const response = await fetch(
@@ -1507,7 +1539,6 @@
                     const issues = await response.json();
                     const newDanmakus = [];
 
-                    // 提取弹幕内容，按时间倒序（最新的在前）
                     issues.forEach(issue => {
                         if (issue.body && issue.body.startsWith('DANMAKU:')) {
                             const content = issue.body.replace('DANMAKU:', '');
@@ -1520,23 +1551,20 @@
                         }
                     });
 
-                    // 去重：只添加当前列表中没有的弹幕
                     const existingIds = currentDanmakus.map(d => d.id);
                     const uniqueNewDanmakus = newDanmakus.filter(d => !existingIds.includes(d.id));
 
-                    // 添加新弹幕
                     if (uniqueNewDanmakus.length > 0) {
                         uniqueNewDanmakus.forEach(danmaku => {
                             currentDanmakus.push(danmaku);
-                            createDanmaku(danmaku.content);
+                            createDanmaku(danmaku.content, false);
                         });
 
                         console.log(`新增弹幕：${uniqueNewDanmakus.length} 条，当前总数：${currentDanmakus.length}`);
                     }
 
-                    // 限制总条数不超过 15 条（移除最早的）
                     while (currentDanmakus.length > MAX_DANMAKU_COUNT) {
-                        currentDanmakus.shift(); // 移除最早的
+                        currentDanmakus.shift();
                     }
                 }
             } catch (error) {
@@ -1577,17 +1605,14 @@
                 console.log('加载 issues 弹幕失败:', error);
             }
 
-            // 按时间倒序排序（最新的在前）
             issuesDanmakus.sort((a, b) => b.createdAt - a.createdAt);
 
-            // 优先展示 issues 弹幕（最多 15 条）
             const issuesCount = Math.min(issuesDanmakus.length, MAX_DANMAKU_COUNT);
             for (let i = 0; i < issuesCount; i++) {
                 currentDanmakus.push(issuesDanmakus[i]);
-                createDanmaku(issuesDanmakus[i].content);
+                createDanmaku(issuesDanmakus[i].content, false);
             }
 
-            // 数量不足 15 条时，用预设弹幕补足
             const neededCount = MAX_DANMAKU_COUNT - issuesCount;
             if (neededCount > 0) {
                 const shuffled = PRESET_DANMAKUS.sort(() => 0.5 - Math.random());
@@ -1595,7 +1620,7 @@
                 
                 selected.forEach((content, index) => {
                     setTimeout(() => {
-                        createDanmaku(content);
+                        createDanmaku(content, false);
                     }, index * 800);
                 });
             }
@@ -1603,11 +1628,17 @@
             console.log(`弹幕加载完成：Issues ${issuesCount} 条 + 预设 ${neededCount > 0 ? neededCount : 0} 条`);
         }
 
-        // 创建弹幕
-        function createDanmaku(text) {
+        // ========== 创建弹幕（支持新发送标记）==========
+        function createDanmaku(text, isNewSent = false) {
             const container = document.getElementById('danmakuContainer');
             const danmaku = document.createElement('div');
             danmaku.className = 'danmaku';
+            
+            // ========== 如果是新发送的弹幕，添加特殊样式 ==========
+            if (isNewSent) {
+                danmaku.classList.add('new-sent');
+            }
+            
             danmaku.textContent = text;
             danmaku.style.top = Math.random() * (container.offsetHeight - 50) + 'px';
             danmaku.style.background = DANMAKU_COLORS[Math.floor(Math.random() * DANMAKU_COLORS.length)];
@@ -1615,12 +1646,10 @@
             
             container.appendChild(danmaku);
 
-            // 弹幕动画结束后移除，并从列表中删除
             setTimeout(() => {
                 if (danmaku.parentNode) {
                     danmaku.remove();
                 }
-                // 从当前弹幕列表中移除（简单处理：移除最早的一条）
                 if (currentDanmakus.length > 0) {
                     currentDanmakus.shift();
                 }
@@ -1643,9 +1672,8 @@
             danmakuInterval = setInterval(() => {
                 const randomText = sampleDanmakus[Math.floor(Math.random() * sampleDanmakus.length)];
                 
-                // 只有在当前弹幕数少于 15 条时才添加
                 if (currentDanmakus.length < MAX_DANMAKU_COUNT) {
-                    createDanmaku(randomText);
+                    createDanmaku(randomText, false);
                     currentDanmakus.push({
                         content: randomText,
                         createdAt: Date.now(),
@@ -1655,7 +1683,7 @@
             }, 2500);
         }
 
-        // 发送弹幕
+        // ========== 发送弹幕（立即显示 + 闪动效果）==========
         async function sendDanmaku() {
             const input = document.getElementById('danmakuInput');
             const btn = document.getElementById('sendBtn');
@@ -1690,7 +1718,15 @@
                 if (response.ok) {
                     showStatus('发送成功！🎉');
                     input.value = '';
-                    // 发送成功后会由实时刷新机制自动加载
+                    
+                    // ========== 立即在页面上显示弹幕（带闪动效果）==========
+                    createDanmaku(text, true);
+                    currentDanmakus.push({
+                        content: text,
+                        createdAt: Date.now(),
+                        id: 'user_' + Date.now()
+                    });
+                    
                     if (!isMusicPlaying) playMusic();
                 } else {
                     const error = await response.json();
