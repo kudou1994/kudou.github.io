@@ -559,7 +559,7 @@
             console.log('[DEBUG] 回调 URL:', currentUrl);
             
             const redirectUri = currentUrl;
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=public_repo`;
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=public_repo&response_type=token`;
             
             console.log('[DEBUG] 跳转授权 URL:', authUrl);
             window.location.href = authUrl;
