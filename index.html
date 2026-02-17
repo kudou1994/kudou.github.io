@@ -246,7 +246,7 @@
             to { transform: translateX(-100%); }
         }
 
-        /* ========== 红包容器 - 修复点击区域问题 ========== */
+        /* 红包容器 */
         .redpacket-container {
             position: fixed;
             top: 0;
@@ -274,13 +274,11 @@
                 inset 0 0 15px rgba(255,215,0,0.3);
             border: 3px solid #ffd700;
             transition: transform 0.1s;
-            /* 确保整个红包区域可点击 */
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        /* ========== 红包点击热区 - 扩大点击范围 ========== */
         .redpacket::after {
             content: '';
             position: absolute;
@@ -1012,6 +1010,25 @@
             '#ff69b4', '#ff4500', '#9370db', '#00ffff'
         ];
 
+        // ========== 预设弹幕（用于补足 15 条）==========
+        const PRESET_DANMAKUS = [
+            '新年快乐！🎉',
+            '马年大吉！🐎',
+            '恭喜发财！💰',
+            '万事如意！✨',
+            '身体健康！💪',
+            '赵宇新年快乐！🎊',
+            '2026 发发发！🧧',
+            '好运连连！🍀',
+            '阖家幸福！👨‍👩‍👧‍👦',
+            '心想事成！🌟',
+            '平安喜乐！🕊️',
+            '笑口常开！😄',
+            '福气满满！🍊',
+            '鸿运当头！🔴',
+            '喜气洋洋！🎈'
+        ];
+
         // 音乐相关变量
         let isMusicPlaying = false;
         let isMusicInitialized = false;
@@ -1069,6 +1086,13 @@
             } catch (e) {
                 console.log('保存收集进度失败:', e);
             }
+        }
+
+        // ========== 清空收集进度 ==========
+        function clearCollectedBlessings() {
+            collectedBlessings = new Set();
+            localStorage.removeItem(STORAGE_KEY);
+            console.log('已清空收集进度');
         }
 
         // 添加收集到的祝福
@@ -1170,9 +1194,8 @@
             redpacketSound.play().catch(() => {});
         }
 
-        // ========== 播放烟花音效（2 秒后停止）==========
+        // 播放烟花音效（2 秒后停止）
         function playFireworkSound() {
-            // 清除之前的定时器
             if (fireworkSoundTimer) {
                 clearTimeout(fireworkSoundTimer);
             }
@@ -1181,7 +1204,6 @@
             fireworkSound.volume = 0.5;
             fireworkSound.play().catch(() => {});
             
-            // 2 秒后停止播放
             fireworkSoundTimer = setTimeout(() => {
                 fireworkSound.pause();
                 fireworkSound.currentTime = 0;
@@ -1195,18 +1217,15 @@
             }
         }
 
-        // 初始化红包（生成间隔已改为 1400ms）
+        // 初始化红包
         function initRedpackets() {
             const container = document.getElementById('redpacketContainer');
             
-            // 初始红包数：8 个
             for (let i = 0; i < 8; i++) {
                 setTimeout(() => createRedpacket(), i * 400);
             }
 
-            // ========== 红包生成间隔：1400ms ==========
             redpacketInterval = setInterval(() => {
-                // 每次生成数量：1-2 个
                 const count = Math.floor(Math.random() * 2) + 1;
                 for (let i = 0; i < count; i++) {
                     setTimeout(() => createRedpacket(), i * 150);
@@ -1220,45 +1239,31 @@
             const redpacket = document.createElement('div');
             redpacket.className = 'redpacket';
             
-            // 随机位置
             redpacket.style.left = Math.random() * (window.innerWidth - 70) + 'px';
-            
-            // 下落速度减慢 20%（5-10 秒）
             redpacket.style.animationDuration = (5 + Math.random() * 5) + 's';
             
-            // 随机大小变化
             const scale = 0.8 + Math.random() * 0.4;
             redpacket.style.transform = `scale(${scale})`;
             
-            // ========== 使用 touchstart 和 click 双重事件，确保全屏区域可点击 ==========
             const handleRedpacketClick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 if (this.classList.contains('clicked')) return;
                 
-                // 播放音效
                 playRedpacketSound();
-                
-                // 震动反馈
                 vibrate([30, 50, 30]);
                 
-                // 金币特效
                 const rect = this.getBoundingClientRect();
                 createCoins(rect.left + rect.width/2, rect.top + rect.height/2);
-                
-                // 烟花特效
                 createFirework(rect.left + rect.width/2, rect.top + rect.height/2);
                 
-                // 标记为已点击
                 this.classList.add('clicked');
                 
-                // 显示祝福
                 setTimeout(() => {
                     showBlessing();
                 }, 150);
                 
-                // 移除红包
                 setTimeout(() => {
                     if (this.parentNode) {
                         this.remove();
@@ -1266,14 +1271,11 @@
                 }, 300);
             };
 
-            // 移动端 touchstart 事件（响应更快）
             redpacket.addEventListener('touchstart', handleRedpacketClick, { passive: false });
-            // 桌面端 click 事件
             redpacket.addEventListener('click', handleRedpacketClick);
 
             container.appendChild(redpacket);
 
-            // 动画结束后移除
             setTimeout(() => {
                 if (redpacket.parentNode && !redpacket.classList.contains('clicked')) {
                     redpacket.remove();
@@ -1309,7 +1311,6 @@
             firework.style.background = firework.style.color;
             container.appendChild(firework);
 
-            // 播放烟花音效
             playFireworkSound();
 
             setTimeout(() => {
@@ -1317,23 +1318,20 @@
             }, 1500);
         }
 
-        // 显示祝福弹窗（带收集功能）
+        // 显示祝福弹窗
         function showBlessing() {
             const modal = document.getElementById('modalOverlay');
             const content = document.getElementById('modalContent');
             const randomBlessing = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
             
-            // 记录收集
             addCollectedBlessing(randomBlessing);
             
-            // 检查是否重复
             const isDuplicate = hasCollected(randomBlessing);
             const prefix = isDuplicate ? '✨ 再次获得：' : '🎁 新祝福：';
             
             content.textContent = prefix + randomBlessing;
             modal.style.display = 'flex';
             
-            // 额外烟花庆祝
             setTimeout(() => {
                 const rect = modal.getBoundingClientRect();
                 createFirework(rect.left + rect.width/2, rect.top);
@@ -1352,11 +1350,9 @@
             const progressText = document.getElementById('progressText');
             const progressFill = document.getElementById('progressFill');
             
-            // 更新进度
             progressText.textContent = `${collectedBlessings.size}/${BLESSINGS.length}`;
             progressFill.style.width = '100%';
             
-            // 生成祝福列表
             list.innerHTML = '';
             BLESSINGS.forEach((blessing, index) => {
                 const item = document.createElement('div');
@@ -1368,18 +1364,20 @@
                 list.appendChild(item);
             });
             
-            // 播放庆祝音效
             playFireworkSound();
-            
-            // 彩带特效
             createConfetti();
             
             modal.style.display = 'flex';
         }
 
-        // 关闭集齐弹窗
+        // ========== 关闭集齐弹窗并清空收集进度 ==========
         function closeCollectionModal() {
+            // 清空收集进度
+            clearCollectedBlessings();
+            
             document.getElementById('collectionModalOverlay').style.display = 'none';
+            
+            showStatus('🔄 已重置收集进度，重新开始收集！');
         }
 
         // 彩带特效
@@ -1402,8 +1400,10 @@
             }
         }
 
-        // 加载弹幕
+        // ========== 加载弹幕（优先 issues，不足 15 条用预设补足）==========
         async function loadDanmaku() {
+            const issuesDanmakus = [];
+            
             try {
                 const response = await fetch(
                     `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?state=all&per_page=30`,
@@ -1420,13 +1420,34 @@
                     issues.forEach(issue => {
                         if (issue.body && issue.body.startsWith('DANMAKU:')) {
                             const content = issue.body.replace('DANMAKU:', '');
-                            createDanmaku(content);
+                            issuesDanmakus.push(content);
                         }
                     });
                 }
             } catch (error) {
-                console.log('加载弹幕失败:', error);
+                console.log('加载 issues 弹幕失败:', error);
             }
+
+            // ========== 优先展示 issues 弹幕 ==========
+            issuesDanmakus.forEach(content => {
+                createDanmaku(content);
+            });
+
+            // ========== 数量不足 15 条时，用预设弹幕补足 ==========
+            const neededCount = 15 - issuesDanmakus.length;
+            if (neededCount > 0) {
+                // 从预设弹幕中随机选取补足
+                const shuffled = PRESET_DANMAKUS.sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, neededCount);
+                
+                selected.forEach((content, index) => {
+                    setTimeout(() => {
+                        createDanmaku(content);
+                    }, index * 800);
+                });
+            }
+
+            console.log(`弹幕加载完成：Issues ${issuesDanmakus.length} 条 + 预设 ${neededCount > 0 ? neededCount : 0} 条`);
         }
 
         // 创建弹幕
