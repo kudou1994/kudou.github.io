@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐎赵宇的马年祝福🐎</title>
+    <title>🐎赵宇的马年祝福</title>
     <style>
         * {
             margin: 0;
@@ -308,10 +308,118 @@
             .redpacket { width: 40px; height: 50px; }
             .redpacket::before { font-size: 24px; }
         }
+
+        /* ========== 新增：音乐控制按钮样式 ========== */
+        .music-control {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .music-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #ffd700;
+            background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,215,0,0.1));
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, rgba(255,215,0,0.5), rgba(255,215,0,0.2));
+        }
+
+        .music-btn.playing {
+            animation: musicPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes musicPulse {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(255,215,0,0.5);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 25px rgba(255,215,0,0.8);
+                transform: scale(1.05);
+            }
+        }
+
+        .music-label {
+            color: #ffd700;
+            font-size: 12px;
+            opacity: 0.8;
+            display: none;
+        }
+
+        @media (min-width: 375px) {
+            .music-label {
+                display: block;
+            }
+        }
+
+        /* 音量调节 */
+        .volume-control {
+            position: fixed;
+            top: 70px;
+            right: 15px;
+            z-index: 200;
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            padding: 10px;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .volume-control.show {
+            display: block;
+        }
+
+        .volume-slider {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 8px;
+            height: 80px;
+            background: linear-gradient(to top, #c41e3a, #ffd700);
+            border-radius: 4px;
+            outline: none;
+        }
     </style>
 </head>
 <body>
     <div class="bg-decoration"></div>
+    
+    <!-- ========== 新增：音频元素 ========== -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="./audio/newyear.mp3" type="audio/mpeg">
+        <source src="./audio/newyear.ogg" type="audio/ogg">
+        您的浏览器不支持音频播放
+    </audio>
+
+    <!-- ========== 新增：音乐控制按钮 ========== -->
+    <div class="music-control">
+        <span class="music-label">背景音乐</span>
+        <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="播放/暂停音乐">
+            🎵
+        </button>
+    </div>
+
+    <!-- ========== 新增：音量调节 ========== -->
+    <div class="volume-control" id="volumeControl">
+        <input type="range" class="volume-slider" id="volumeSlider" 
+               min="0" max="1" step="0.1" value="0.5" 
+               onchange="setVolume(this.value)" orient="vertical">
+    </div>
     
     <div class="container">
         <div class="header">
@@ -384,6 +492,13 @@
             '#ff69b4', '#9370db', '#ffa500', '#32cd32'
         ];
 
+        // ========== 新增：音乐相关变量 ==========
+        let isMusicPlaying = false;
+        let isMusicInitialized = false;
+        const bgMusic = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+        const volumeControl = document.getElementById('volumeControl');
+
         let danmakuInterval = null;
         let redpacketInterval = null;
 
@@ -392,6 +507,97 @@
             initRedpackets();
             loadDanmaku();
             startDanmakuLoop();
+            initMusic();
+        });
+
+        // ========== 新增：音乐初始化 ==========
+        function initMusic() {
+            // 设置初始音量
+            bgMusic.volume = 0.5;
+            
+            // 监听音频加载
+            bgMusic.addEventListener('canplaythrough', function() {
+                console.log('音乐已加载完成');
+                isMusicInitialized = true;
+            });
+
+            bgMusic.addEventListener('error', function(e) {
+                console.log('音乐加载失败:', e);
+                showStatus('🎵 音乐文件未找到，请检查 audio/newyear.mp3');
+            });
+
+            // 首次用户交互时尝试播放（绕过浏览器自动播放限制）
+            document.body.addEventListener('click', function firstClick() {
+                if (!isMusicPlaying && !isMusicInitialized) {
+                    // 尝试播放，如果失败则等待用户明确点击音乐按钮
+                    playMusic().catch(() => {
+                        console.log('自动播放被阻止，等待用户手动点击');
+                    });
+                }
+                document.body.removeEventListener('click', firstClick);
+            }, { once: true });
+        }
+
+        // ========== 新增：播放音乐 ==========
+        async function playMusic() {
+            try {
+                await bgMusic.play();
+                isMusicPlaying = true;
+                musicBtn.textContent = '🔊';
+                musicBtn.classList.add('playing');
+                console.log('音乐开始播放');
+            } catch (error) {
+                console.log('播放失败:', error);
+                showStatus('请点击 🎵 按钮播放音乐');
+            }
+        }
+
+        // ========== 新增：暂停音乐 ==========
+        function pauseMusic() {
+            bgMusic.pause();
+            isMusicPlaying = false;
+            musicBtn.textContent = '🎵';
+            musicBtn.classList.remove('playing');
+            console.log('音乐已暂停');
+        }
+
+        // ========== 新增：切换音乐播放状态 ==========
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                pauseMusic();
+                showStatus('🔇 音乐已暂停');
+            } else {
+                playMusic();
+                showStatus('🔊 音乐播放中');
+            }
+        }
+
+        // ========== 新增：设置音量 ==========
+        function setVolume(value) {
+            bgMusic.volume = parseFloat(value);
+            showStatus(`🔊 音量：${Math.round(value * 100)}%`);
+        }
+
+        // ========== 新增：显示音量控制 ==========
+        musicBtn.addEventListener('longpress', function() {
+            volumeControl.classList.toggle('show');
+        });
+
+        // 移动端长按支持
+        let pressTimer;
+        musicBtn.addEventListener('touchstart', function(e) {
+            pressTimer = setTimeout(() => {
+                volumeControl.classList.toggle('show');
+                navigator.vibrate?.(50);
+            }, 800);
+        });
+
+        musicBtn.addEventListener('touchend', function() {
+            clearTimeout(pressTimer);
+        });
+
+        musicBtn.addEventListener('touchmove', function() {
+            clearTimeout(pressTimer);
         });
 
         // 初始化红包
@@ -418,6 +624,10 @@
             redpacket.style.animationDuration = (3 + Math.random() * 3) + 's';
             
             redpacket.onclick = function() {
+                // ========== 新增：点击红包时尝试播放音乐 ==========
+                if (!isMusicPlaying) {
+                    playMusic();
+                }
                 showBlessing();
                 this.remove();
             };
@@ -546,6 +756,10 @@
                     showStatus('发送成功！🎉');
                     input.value = '';
                     createDanmaku(text);
+                    // ========== 新增：发送弹幕时尝试播放音乐 ==========
+                    if (!isMusicPlaying) {
+                        playMusic();
+                    }
                 } else {
                     const error = await response.json();
                     showStatus('发送失败：' + (error.message || '未知错误'));
