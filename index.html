@@ -758,7 +758,7 @@
             .blessing-card p { font-size: 19px; }
         }
 
-        /* 加载动画 */
+        /* ========== 加载动画样式 ========== */
         .loader {
             position: fixed;
             top: 0;
@@ -769,6 +769,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             z-index: 9999;
             transition: opacity 0.5s;
         }
@@ -796,12 +797,47 @@
             color: #ffd700;
             font-size: 18px;
             margin-top: 15px;
+            margin-bottom: 20px;
             animation: loaderPulse 1.5s ease-in-out infinite;
         }
 
         @keyframes loaderPulse {
             0%, 100% { opacity: 0.6; }
             50% { opacity: 1; }
+        }
+
+        /* ========== 加载进度条样式 ========== */
+        .loader-progress-container {
+            width: 280px;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 auto;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        }
+
+        .loader-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+            background-size: 200% 100%;
+            border-radius: 4px;
+            width: 0%;
+            animation: progressShine 2s linear infinite;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 10px rgba(255,215,0,0.6);
+        }
+
+        @keyframes progressShine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .loader-progress-text {
+            color: #ffd700;
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0.8;
         }
 
         /* 星星装饰 */
@@ -855,6 +891,11 @@
         <div class="loader-content">
             <div class="loader-horse">🐎</div>
             <div class="loader-text">正在加载新年祝福...</div>
+            <!-- ========== 新增进度条 ========== -->
+            <div class="loader-progress-container">
+                <div class="loader-progress-bar" id="loaderProgressBar"></div>
+            </div>
+            <div class="loader-progress-text" id="loaderProgressText">0%</div>
         </div>
     </div>
 
@@ -1010,7 +1051,7 @@
             '#ff69b4', '#ff4500', '#9370db', '#00ffff'
         ];
 
-        // ========== 预设弹幕（用于补足 15 条）==========
+        // 预设弹幕（用于补足 15 条）
         const PRESET_DANMAKUS = [
             '新年快乐！🎉',
             '马年大吉！🐎',
@@ -1041,6 +1082,13 @@
         // 烟花音效定时器
         let fireworkSoundTimer = null;
 
+        // ========== 弹幕实时加载定时器 ==========
+        let danmakuRefreshTimer = null;
+
+        // ========== 当前弹幕列表（用于去重和限制数量）==========
+        let currentDanmakus = [];
+        const MAX_DANMAKU_COUNT = 15;
+
         // 集齐祝福相关变量
         let collectedBlessings = new Set();
         const STORAGE_KEY = 'horse_year_blessings_2026';
@@ -1050,9 +1098,12 @@
 
         // 页面加载完成后
         window.addEventListener('load', function() {
+            // ========== 启动加载进度条动画 ==========
+            startLoaderProgress();
+            
             setTimeout(() => {
                 document.getElementById('loader').classList.add('hidden');
-            }, 1500);
+            }, 3000);
             
             // 加载已收集的祝福
             loadCollectedBlessings();
@@ -1062,7 +1113,42 @@
             loadDanmaku();
             startDanmakuLoop();
             initMusic();
+            
+            // ========== 启动弹幕实时刷新（1 秒间隔）==========
+            startDanmakuRefresh();
         });
+
+        // ========== 加载进度条动画（3 秒到 99%）==========
+        function startLoaderProgress() {
+            const progressBar = document.getElementById('loaderProgressBar');
+            const progressText = document.getElementById('loaderProgressText');
+            
+            let progress = 0;
+            const duration = 3000; // 3 秒
+            const interval = 30; // 每 30ms 更新一次
+            const steps = duration / interval;
+            const incrementPerStep = 99 / steps;
+
+            const timer = setInterval(() => {
+                progress += incrementPerStep;
+                
+                // 使用缓动函数让进度更自然
+                const easedProgress = easeOutCubic(progress / 99) * 99;
+                
+                if (progress >= 99) {
+                    progress = 99;
+                    clearInterval(timer);
+                }
+
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.floor(progress) + '%';
+            }, interval);
+        }
+
+        // 缓动函数
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
 
         // 加载已收集的祝福
         function loadCollectedBlessings() {
@@ -1088,7 +1174,7 @@
             }
         }
 
-        // ========== 清空收集进度 ==========
+        // 清空收集进度
         function clearCollectedBlessings() {
             collectedBlessings = new Set();
             localStorage.removeItem(STORAGE_KEY);
@@ -1370,13 +1456,10 @@
             modal.style.display = 'flex';
         }
 
-        // ========== 关闭集齐弹窗并清空收集进度 ==========
+        // 关闭集齐弹窗并清空收集进度
         function closeCollectionModal() {
-            // 清空收集进度
             clearCollectedBlessings();
-            
             document.getElementById('collectionModalOverlay').style.display = 'none';
-            
             showStatus('🔄 已重置收集进度，重新开始收集！');
         }
 
@@ -1400,13 +1483,74 @@
             }
         }
 
-        // ========== 加载弹幕（优先 issues，不足 15 条用预设补足）==========
+        // ========== 弹幕实时刷新（每秒从 Issues 获取最新弹幕）==========
+        function startDanmakuRefresh() {
+            danmakuRefreshTimer = setInterval(async () => {
+                await refreshDanmakuFromIssues();
+            }, 1000);
+        }
+
+        // ========== 从 Issues 刷新弹幕 ==========
+        async function refreshDanmakuFromIssues() {
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?state=all&per_page=30&sort=created&direction=desc`,
+                    {
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    const issues = await response.json();
+                    const newDanmakus = [];
+
+                    // 提取弹幕内容，按时间倒序（最新的在前）
+                    issues.forEach(issue => {
+                        if (issue.body && issue.body.startsWith('DANMAKU:')) {
+                            const content = issue.body.replace('DANMAKU:', '');
+                            const createdAt = new Date(issue.created_at).getTime();
+                            newDanmakus.push({
+                                content: content,
+                                createdAt: createdAt,
+                                id: issue.id
+                            });
+                        }
+                    });
+
+                    // 去重：只添加当前列表中没有的弹幕
+                    const existingIds = currentDanmakus.map(d => d.id);
+                    const uniqueNewDanmakus = newDanmakus.filter(d => !existingIds.includes(d.id));
+
+                    // 添加新弹幕
+                    if (uniqueNewDanmakus.length > 0) {
+                        uniqueNewDanmakus.forEach(danmaku => {
+                            currentDanmakus.push(danmaku);
+                            createDanmaku(danmaku.content);
+                        });
+
+                        console.log(`新增弹幕：${uniqueNewDanmakus.length} 条，当前总数：${currentDanmakus.length}`);
+                    }
+
+                    // 限制总条数不超过 15 条（移除最早的）
+                    while (currentDanmakus.length > MAX_DANMAKU_COUNT) {
+                        currentDanmakus.shift(); // 移除最早的
+                    }
+                }
+            } catch (error) {
+                console.log('刷新弹幕失败:', error);
+            }
+        }
+
+        // 加载弹幕（初始加载）
         async function loadDanmaku() {
             const issuesDanmakus = [];
             
             try {
                 const response = await fetch(
-                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?state=all&per_page=30`,
+                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?state=all&per_page=30&sort=created&direction=desc`,
                     {
                         headers: {
                             'Authorization': `token ${GITHUB_CONFIG.token}`,
@@ -1420,7 +1564,12 @@
                     issues.forEach(issue => {
                         if (issue.body && issue.body.startsWith('DANMAKU:')) {
                             const content = issue.body.replace('DANMAKU:', '');
-                            issuesDanmakus.push(content);
+                            const createdAt = new Date(issue.created_at).getTime();
+                            issuesDanmakus.push({
+                                content: content,
+                                createdAt: createdAt,
+                                id: issue.id
+                            });
                         }
                     });
                 }
@@ -1428,15 +1577,19 @@
                 console.log('加载 issues 弹幕失败:', error);
             }
 
-            // ========== 优先展示 issues 弹幕 ==========
-            issuesDanmakus.forEach(content => {
-                createDanmaku(content);
-            });
+            // 按时间倒序排序（最新的在前）
+            issuesDanmakus.sort((a, b) => b.createdAt - a.createdAt);
 
-            // ========== 数量不足 15 条时，用预设弹幕补足 ==========
-            const neededCount = 15 - issuesDanmakus.length;
+            // 优先展示 issues 弹幕（最多 15 条）
+            const issuesCount = Math.min(issuesDanmakus.length, MAX_DANMAKU_COUNT);
+            for (let i = 0; i < issuesCount; i++) {
+                currentDanmakus.push(issuesDanmakus[i]);
+                createDanmaku(issuesDanmakus[i].content);
+            }
+
+            // 数量不足 15 条时，用预设弹幕补足
+            const neededCount = MAX_DANMAKU_COUNT - issuesCount;
             if (neededCount > 0) {
-                // 从预设弹幕中随机选取补足
                 const shuffled = PRESET_DANMAKUS.sort(() => 0.5 - Math.random());
                 const selected = shuffled.slice(0, neededCount);
                 
@@ -1447,7 +1600,7 @@
                 });
             }
 
-            console.log(`弹幕加载完成：Issues ${issuesDanmakus.length} 条 + 预设 ${neededCount > 0 ? neededCount : 0} 条`);
+            console.log(`弹幕加载完成：Issues ${issuesCount} 条 + 预设 ${neededCount > 0 ? neededCount : 0} 条`);
         }
 
         // 创建弹幕
@@ -1462,14 +1615,19 @@
             
             container.appendChild(danmaku);
 
+            // 弹幕动画结束后移除，并从列表中删除
             setTimeout(() => {
                 if (danmaku.parentNode) {
                     danmaku.remove();
                 }
+                // 从当前弹幕列表中移除（简单处理：移除最早的一条）
+                if (currentDanmakus.length > 0) {
+                    currentDanmakus.shift();
+                }
             }, 15000);
         }
 
-        // 弹幕循环
+        // 弹幕循环（预设弹幕）
         function startDanmakuLoop() {
             const sampleDanmakus = [
                 '新年快乐！🎉',
@@ -1484,7 +1642,16 @@
 
             danmakuInterval = setInterval(() => {
                 const randomText = sampleDanmakus[Math.floor(Math.random() * sampleDanmakus.length)];
-                createDanmaku(randomText);
+                
+                // 只有在当前弹幕数少于 15 条时才添加
+                if (currentDanmakus.length < MAX_DANMAKU_COUNT) {
+                    createDanmaku(randomText);
+                    currentDanmakus.push({
+                        content: randomText,
+                        createdAt: Date.now(),
+                        id: 'preset_' + Date.now()
+                    });
+                }
             }, 2500);
         }
 
@@ -1523,7 +1690,7 @@
                 if (response.ok) {
                     showStatus('发送成功！🎉');
                     input.value = '';
-                    createDanmaku(text);
+                    // 发送成功后会由实时刷新机制自动加载
                     if (!isMusicPlaying) playMusic();
                 } else {
                     const error = await response.json();
@@ -1569,6 +1736,7 @@
             if (danmakuInterval) clearInterval(danmakuInterval);
             if (redpacketInterval) clearInterval(redpacketInterval);
             if (fireworkSoundTimer) clearTimeout(fireworkSoundTimer);
+            if (danmakuRefreshTimer) clearInterval(danmakuRefreshTimer);
         });
     </script>
 </body>
