@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐎赵宇的马年祝福</title>
+    <title>🐎 马年大吉 - 赵宇祝您新年快乐</title>
     <style>
         * {
             margin: 0;
@@ -215,7 +215,7 @@
             50% { transform: translateY(-20px) rotate(-10deg); }
         }
 
-        /* 弹幕区域 */
+        /* ========== 弹幕区域 - 最上层 ========== */
         .danmaku-container {
             position: absolute;
             top: 150px;
@@ -224,7 +224,7 @@
             height: calc(100vh - 320px);
             overflow: hidden;
             pointer-events: none;
-            z-index: 5;
+            z-index: 9999;
         }
 
         .danmaku {
@@ -259,8 +259,8 @@
 
         .redpacket {
             position: absolute;
-            width: 60px;
-            height: 75px;
+            width: 55px;
+            height: 70px;
             background: linear-gradient(180deg, #ff6b6b 0%, #c41e3a 50%, #a01020 100%);
             border-radius: 10px;
             cursor: pointer;
@@ -278,7 +278,7 @@
 
         .redpacket::before {
             content: '🧧';
-            font-size: 38px;
+            font-size: 32px;
             filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
         }
 
@@ -446,7 +446,7 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 10000;
             backdrop-filter: blur(8px);
         }
 
@@ -454,7 +454,9 @@
             background: linear-gradient(145deg, #c41e3a, #8b0000);
             border-radius: 25px;
             padding: 35px 30px;
-            max-width: 85%;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
             text-align: center;
             border: 4px solid #ffd700;
             box-shadow: 
@@ -462,7 +464,7 @@
                 inset 0 0 50px rgba(255,215,0,0.1);
             animation: modalPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         .modal::before {
@@ -521,6 +523,70 @@
             transform: scale(0.95);
         }
 
+        /* 集齐祝福列表样式 */
+        .collection-list {
+            text-align: left;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .collection-item {
+            background: rgba(255,215,0,0.15);
+            border: 1px solid rgba(255,215,0,0.4);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin: 10px 0;
+            color: #fff;
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .collection-item.collected {
+            background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,140,0,0.2));
+            border-color: #ffd700;
+        }
+
+        .collection-item .icon {
+            font-size: 20px;
+        }
+
+        .collection-item .lock {
+            opacity: 0.4;
+        }
+
+        .collection-progress {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff8c00);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .progress-text {
+            color: #ffd700;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         /* 状态提示 */
         .status-tip {
             position: fixed;
@@ -531,7 +597,7 @@
             color: #ffd700;
             padding: 18px 30px;
             border-radius: 15px;
-            z-index: 999;
+            z-index: 9999;
             display: none;
             font-size: 16px;
             border: 2px solid rgba(255,215,0,0.5);
@@ -665,8 +731,8 @@
             .header .subtitle { font-size: 16px; }
             .blessing-card { padding: 20px 15px; }
             .blessing-card p { font-size: 15px; line-height: 1.8; }
-            .redpacket { width: 50px; height: 65px; }
-            .redpacket::before { font-size: 32px; }
+            .redpacket { width: 45px; height: 60px; }
+            .redpacket::before { font-size: 28px; }
             .lantern::before { font-size: 38px; }
             .container { padding-top: 80px; }
         }
@@ -731,11 +797,41 @@
             opacity: 0.6;
             animation: starTwinkle 2s ease-in-out infinite;
             pointer-events: none;
+            z-index: 1;
         }
 
         @keyframes starTwinkle {
             0%, 100% { opacity: 0.3; transform: scale(0.8); }
             50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 恭喜特效 */
+        .congrats-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -800,6 +896,9 @@
     <!-- 烟花容器 -->
     <div class="firework-container" id="fireworkContainer"></div>
 
+    <!-- 恭喜特效容器 -->
+    <div class="congrats-effect" id="congratsEffect"></div>
+
     <!-- 主容器 -->
     <div class="container">
         <div class="header">
@@ -837,12 +936,28 @@
         <button id="sendBtn" onclick="sendDanmaku()">发送</button>
     </div>
 
-    <!-- 弹窗 -->
+    <!-- 普通祝福弹窗 -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h2>🎉 新年祝福</h2>
             <p id="modalContent"></p>
             <button onclick="closeModal()">收下祝福</button>
+        </div>
+    </div>
+
+    <!-- 集齐祝福弹窗 -->
+    <div class="modal-overlay" id="collectionModalOverlay">
+        <div class="modal">
+            <h2>🎊 恭喜您！</h2>
+            <p style="color: #ffd700; font-size: 22px;">已收获所有祝福</p>
+            <div class="collection-progress">
+                <div class="progress-text">收集进度：<span id="progressText">6/6</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="collection-list" id="collectionList"></div>
+            <button onclick="closeCollectionModal()">继续收集</button>
         </div>
     </div>
 
@@ -858,26 +973,17 @@
             token: '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'
         };
 
-        // 15 条备用祝福语（增加数量）
+        // ========== 6 条备用祝福语 ==========
         const BLESSINGS = [
             '🐎 马到成功，事业腾飞！',
-            '🎊 一马当先，万事如意！',
             '💰 金马送福，财源滚滚！',
             '🌟 龙马精神，身体健康！',
-            '🎯 马不停蹄，梦想成真！',
             '🏆 快马加鞭，步步高升！',
-            '🎁 万马奔腾，好运连连！',
             '✨ 马上有福，幸福安康！',
-            '🔥 策马扬鞭，前程似锦！',
-            '💫 天马行空，创意无限！',
-            '🧧 马上发财，红包拿来！',
-            '🎆 马年吉祥，阖家欢乐！',
-            '🌈 骏马奔腾，好运不断！',
-            '🍀 马到功成，心想事成！',
-            '🎈 金马贺岁，福气满满！'
+            '🔥 策马扬鞭，前程似锦！'
         ];
 
-        // 弹幕颜色（增加更多喜庆颜色）
+        // 弹幕颜色
         const DANMAKU_COLORS = [
             '#ff6b6b', '#ffd700', '#00ff88', '#00bfff', 
             '#ff69b4', '#9370db', '#ffa500', '#32cd32',
@@ -899,6 +1005,10 @@
         const musicBtn = document.getElementById('musicBtn');
         const volumeControl = document.getElementById('volumeControl');
 
+        // ========== 集齐祝福相关变量 ==========
+        let collectedBlessings = new Set();
+        const STORAGE_KEY = 'horse_year_blessings_2026';
+
         let danmakuInterval = null;
         let redpacketInterval = null;
 
@@ -908,12 +1018,57 @@
                 document.getElementById('loader').classList.add('hidden');
             }, 1500);
             
+            // 加载已收集的祝福
+            loadCollectedBlessings();
+            
             initStars();
             initRedpackets();
             loadDanmaku();
             startDanmakuLoop();
             initMusic();
         });
+
+        // ========== 加载已收集的祝福 ==========
+        function loadCollectedBlessings() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    collectedBlessings = new Set(data);
+                    console.log('已加载收集进度:', collectedBlessings.size, '/', BLESSINGS.length);
+                }
+            } catch (e) {
+                console.log('加载收集进度失败:', e);
+                collectedBlessings = new Set();
+            }
+        }
+
+        // ========== 保存收集进度 ==========
+        function saveCollectedBlessings() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify([...collectedBlessings]));
+            } catch (e) {
+                console.log('保存收集进度失败:', e);
+            }
+        }
+
+        // ========== 添加收集到的祝福 ==========
+        function addCollectedBlessing(blessing) {
+            collectedBlessings.add(blessing);
+            saveCollectedBlessings();
+            
+            // 检查是否集齐
+            if (collectedBlessings.size >= BLESSINGS.length) {
+                setTimeout(() => {
+                    showCollectionComplete();
+                }, 500);
+            }
+        }
+
+        // ========== 检查是否已收集过 ==========
+        function hasCollected(blessing) {
+            return collectedBlessings.has(blessing);
+        }
 
         // 初始化星星装饰
         function initStars() {
@@ -1010,23 +1165,23 @@
             }
         }
 
-        // 初始化红包（增加数量和流畅度）
+        // ========== 初始化红包（参数已调整）==========
         function initRedpackets() {
             const container = document.getElementById('redpacketContainer');
             
-            // 创建初始红包（增加数量）
-            for (let i = 0; i < 12; i++) {
-                setTimeout(() => createRedpacket(), i * 300);
+            // 初始红包数：8 个
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => createRedpacket(), i * 400);
             }
 
-            // 持续生成红包（缩短间隔，提升流畅度）
+            // 红包生成间隔：1200ms
             redpacketInterval = setInterval(() => {
-                // 随机生成 1-3 个红包
-                const count = Math.floor(Math.random() * 3) + 1;
+                // 每次生成数量：1-2 个
+                const count = Math.floor(Math.random() * 2) + 1;
                 for (let i = 0; i < count; i++) {
                     setTimeout(() => createRedpacket(), i * 150);
                 }
-            }, 800);
+            }, 1200);
         }
 
         // 创建红包
@@ -1035,9 +1190,11 @@
             const redpacket = document.createElement('div');
             redpacket.className = 'redpacket';
             
-            // 随机位置（增加分布范围）
+            // 随机位置
             redpacket.style.left = Math.random() * (window.innerWidth - 70) + 'px';
-            redpacket.style.animationDuration = (4 + Math.random() * 4) + 's';
+            
+            // ========== 下落速度减慢 20%（原 4-8 秒，现 5-10 秒）==========
+            redpacket.style.animationDuration = (5 + Math.random() * 5) + 's';
             
             // 随机大小变化
             const scale = 0.8 + Math.random() * 0.4;
@@ -1081,7 +1238,7 @@
                 if (redpacket.parentNode && !redpacket.classList.contains('clicked')) {
                     redpacket.remove();
                 }
-            }, 8000);
+            }, 10000);
         }
 
         // 创建金币特效
@@ -1120,12 +1277,20 @@
             }, 1500);
         }
 
-        // 显示祝福弹窗
+        // ========== 显示祝福弹窗（带收集功能）==========
         function showBlessing() {
             const modal = document.getElementById('modalOverlay');
             const content = document.getElementById('modalContent');
             const randomBlessing = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
-            content.textContent = randomBlessing;
+            
+            // 记录收集
+            addCollectedBlessing(randomBlessing);
+            
+            // 检查是否重复
+            const isDuplicate = hasCollected(randomBlessing);
+            const prefix = isDuplicate ? '✨ 再次获得：' : '🎁 新祝福：';
+            
+            content.textContent = prefix + randomBlessing;
             modal.style.display = 'flex';
             
             // 额外烟花庆祝
@@ -1135,9 +1300,66 @@
             }, 200);
         }
 
-        // 关闭弹窗
+        // 关闭普通弹窗
         function closeModal() {
             document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        // ========== 显示集齐祝福弹窗 ==========
+        function showCollectionComplete() {
+            const modal = document.getElementById('collectionModalOverlay');
+            const list = document.getElementById('collectionList');
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            
+            // 更新进度
+            progressText.textContent = `${collectedBlessings.size}/${BLESSINGS.length}`;
+            progressFill.style.width = '100%';
+            
+            // 生成祝福列表
+            list.innerHTML = '';
+            BLESSINGS.forEach((blessing, index) => {
+                const item = document.createElement('div');
+                item.className = 'collection-item collected';
+                item.innerHTML = `
+                    <span class="icon">✅</span>
+                    <span>${blessing}</span>
+                `;
+                list.appendChild(item);
+            });
+            
+            // 播放庆祝音效
+            playFireworkSound();
+            
+            // 彩带特效
+            createConfetti();
+            
+            modal.style.display = 'flex';
+        }
+
+        // ========== 关闭集齐弹窗 ==========
+        function closeCollectionModal() {
+            document.getElementById('collectionModalOverlay').style.display = 'none';
+        }
+
+        // ========== 彩带特效 ==========
+        function createConfetti() {
+            const container = document.getElementById('congratsEffect');
+            const colors = ['#ffd700', '#ff6b6b', '#00ff88', '#00bfff', '#ff69b4'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                container.appendChild(confetti);
+
+                setTimeout(() => {
+                    if (confetti.parentNode) confetti.remove();
+                }, 3000);
+            }
         }
 
         // 加载弹幕
