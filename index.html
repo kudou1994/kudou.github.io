@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐎 马年大吉 - 赵宇祝您新年快乐</title>
+    <title>🐎赵宇祝您新年快乐</title>
     <style>
         * {
             margin: 0;
@@ -215,7 +215,7 @@
             50% { transform: translateY(-20px) rotate(-10deg); }
         }
 
-        /* ========== 弹幕区域 - 最上层 ========== */
+        /* 弹幕区域 - 最上层 */
         .danmaku-container {
             position: absolute;
             top: 150px;
@@ -246,15 +246,15 @@
             to { transform: translateX(-100%); }
         }
 
-        /* 红包容器 */
+        /* ========== 红包容器 - 修复点击区域问题 ========== */
         .redpacket-container {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 20;
+            z-index: 50;
         }
 
         .redpacket {
@@ -274,12 +274,28 @@
                 inset 0 0 15px rgba(255,215,0,0.3);
             border: 3px solid #ffd700;
             transition: transform 0.1s;
+            /* 确保整个红包区域可点击 */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* ========== 红包点击热区 - 扩大点击范围 ========== */
+        .redpacket::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            pointer-events: auto;
         }
 
         .redpacket::before {
             content: '🧧';
             font-size: 32px;
             filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+            pointer-events: none;
         }
 
         .redpacket:active {
@@ -313,7 +329,7 @@
             font-size: 25px;
             pointer-events: none;
             animation: coinFly 1s ease-out forwards;
-            z-index: 25;
+            z-index: 55;
         }
 
         @keyframes coinFly {
@@ -335,7 +351,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 30;
+            z-index: 60;
         }
 
         .firework {
@@ -973,7 +989,7 @@
             token: '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'
         };
 
-        // ========== 6 条备用祝福语 ==========
+        // 6 条备用祝福语
         const BLESSINGS = [
             '🐎 马到成功，事业腾飞！',
             '💰 金马送福，财源滚滚！',
@@ -1005,7 +1021,10 @@
         const musicBtn = document.getElementById('musicBtn');
         const volumeControl = document.getElementById('volumeControl');
 
-        // ========== 集齐祝福相关变量 ==========
+        // 烟花音效定时器
+        let fireworkSoundTimer = null;
+
+        // 集齐祝福相关变量
         let collectedBlessings = new Set();
         const STORAGE_KEY = 'horse_year_blessings_2026';
 
@@ -1028,7 +1047,7 @@
             initMusic();
         });
 
-        // ========== 加载已收集的祝福 ==========
+        // 加载已收集的祝福
         function loadCollectedBlessings() {
             try {
                 const stored = localStorage.getItem(STORAGE_KEY);
@@ -1043,7 +1062,7 @@
             }
         }
 
-        // ========== 保存收集进度 ==========
+        // 保存收集进度
         function saveCollectedBlessings() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify([...collectedBlessings]));
@@ -1052,7 +1071,7 @@
             }
         }
 
-        // ========== 添加收集到的祝福 ==========
+        // 添加收集到的祝福
         function addCollectedBlessing(blessing) {
             collectedBlessings.add(blessing);
             saveCollectedBlessings();
@@ -1065,7 +1084,7 @@
             }
         }
 
-        // ========== 检查是否已收集过 ==========
+        // 检查是否已收集过
         function hasCollected(blessing) {
             return collectedBlessings.has(blessing);
         }
@@ -1151,11 +1170,22 @@
             redpacketSound.play().catch(() => {});
         }
 
-        // 播放烟花音效
+        // ========== 播放烟花音效（2 秒后停止）==========
         function playFireworkSound() {
+            // 清除之前的定时器
+            if (fireworkSoundTimer) {
+                clearTimeout(fireworkSoundTimer);
+            }
+            
             fireworkSound.currentTime = 0;
             fireworkSound.volume = 0.5;
             fireworkSound.play().catch(() => {});
+            
+            // 2 秒后停止播放
+            fireworkSoundTimer = setTimeout(() => {
+                fireworkSound.pause();
+                fireworkSound.currentTime = 0;
+            }, 2000);
         }
 
         // 震动反馈
@@ -1165,7 +1195,7 @@
             }
         }
 
-        // ========== 初始化红包（参数已调整）==========
+        // 初始化红包（生成间隔已改为 1400ms）
         function initRedpackets() {
             const container = document.getElementById('redpacketContainer');
             
@@ -1174,14 +1204,14 @@
                 setTimeout(() => createRedpacket(), i * 400);
             }
 
-            // 红包生成间隔：1200ms
+            // ========== 红包生成间隔：1400ms ==========
             redpacketInterval = setInterval(() => {
                 // 每次生成数量：1-2 个
                 const count = Math.floor(Math.random() * 2) + 1;
                 for (let i = 0; i < count; i++) {
                     setTimeout(() => createRedpacket(), i * 150);
                 }
-            }, 1200);
+            }, 1400);
         }
 
         // 创建红包
@@ -1193,14 +1223,18 @@
             // 随机位置
             redpacket.style.left = Math.random() * (window.innerWidth - 70) + 'px';
             
-            // ========== 下落速度减慢 20%（原 4-8 秒，现 5-10 秒）==========
+            // 下落速度减慢 20%（5-10 秒）
             redpacket.style.animationDuration = (5 + Math.random() * 5) + 's';
             
             // 随机大小变化
             const scale = 0.8 + Math.random() * 0.4;
             redpacket.style.transform = `scale(${scale})`;
             
-            redpacket.onclick = function(e) {
+            // ========== 使用 touchstart 和 click 双重事件，确保全屏区域可点击 ==========
+            const handleRedpacketClick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 if (this.classList.contains('clicked')) return;
                 
                 // 播放音效
@@ -1210,10 +1244,11 @@
                 vibrate([30, 50, 30]);
                 
                 // 金币特效
-                createCoins(e.clientX, e.clientY);
+                const rect = this.getBoundingClientRect();
+                createCoins(rect.left + rect.width/2, rect.top + rect.height/2);
                 
                 // 烟花特效
-                createFirework(e.clientX, e.clientY);
+                createFirework(rect.left + rect.width/2, rect.top + rect.height/2);
                 
                 // 标记为已点击
                 this.classList.add('clicked');
@@ -1230,6 +1265,11 @@
                     }
                 }, 300);
             };
+
+            // 移动端 touchstart 事件（响应更快）
+            redpacket.addEventListener('touchstart', handleRedpacketClick, { passive: false });
+            // 桌面端 click 事件
+            redpacket.addEventListener('click', handleRedpacketClick);
 
             container.appendChild(redpacket);
 
@@ -1277,7 +1317,7 @@
             }, 1500);
         }
 
-        // ========== 显示祝福弹窗（带收集功能）==========
+        // 显示祝福弹窗（带收集功能）
         function showBlessing() {
             const modal = document.getElementById('modalOverlay');
             const content = document.getElementById('modalContent');
@@ -1305,7 +1345,7 @@
             document.getElementById('modalOverlay').style.display = 'none';
         }
 
-        // ========== 显示集齐祝福弹窗 ==========
+        // 显示集齐祝福弹窗
         function showCollectionComplete() {
             const modal = document.getElementById('collectionModalOverlay');
             const list = document.getElementById('collectionList');
@@ -1337,12 +1377,12 @@
             modal.style.display = 'flex';
         }
 
-        // ========== 关闭集齐弹窗 ==========
+        // 关闭集齐弹窗
         function closeCollectionModal() {
             document.getElementById('collectionModalOverlay').style.display = 'none';
         }
 
-        // ========== 彩带特效 ==========
+        // 彩带特效
         function createConfetti() {
             const container = document.getElementById('congratsEffect');
             const colors = ['#ffd700', '#ff6b6b', '#00ff88', '#00bfff', '#ff69b4'];
@@ -1507,6 +1547,7 @@
         window.addEventListener('beforeunload', function() {
             if (danmakuInterval) clearInterval(danmakuInterval);
             if (redpacketInterval) clearInterval(redpacketInterval);
+            if (fireworkSoundTimer) clearTimeout(fireworkSoundTimer);
         });
     </script>
 </body>
